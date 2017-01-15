@@ -1,0 +1,95 @@
+<!--
+ @license
+ Copyright The Fitts-Expeiment-WebApp Authors. All Rights Reserved.
+
+ Use of this source code is governed by the Apache2 license that can be
+ found in the LICENSE file
+-->
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>A Fitts Experiment WebApp</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #FFFFFF;
+        font-family: Roboto, Sans;
+        font-size: 10pt;
+      }
+      .button {
+        border: 2px solid #888;
+        margin: 5px;
+        padding: 3px;
+        padding-left: 10px;
+        padding-right: 10px;
+        background: #ccc;
+        text-align: center;
+        font-size: 10pt;
+        font-family: Roboto, Sans;
+        display: inline-block
+      }
+      .view-button {
+        border: 2px solid #888;
+        margin: 5px;
+        padding: 3px;
+        padding-left: 10px;
+        padding-right: 10px;
+        background: #ccc;
+        text-align: center;
+        font-size: 10pt;
+        font-family: Roboto, Sans;
+        display: inline-block
+      }
+      #info {
+        border: 2px solid #cccccc;
+        padding: 5px;
+        margin: 5px;
+        font-family: monospace;
+        white-space: pre;
+      }
+      #trial-settings {
+        margin: 5px;
+      }
+      #trial-params {
+        border: 2px solid #cccccc;
+        padding: 5px;
+        font-family: monospace;
+        white-space: pre;
+        width: 400px;
+        height: 300px;
+      }
+      #pre-trial {
+        margin:10px;
+      }
+      h1 {
+        margin: 0px;
+        font-size: 12pt;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="trial"></div>
+
+    <div id="pre-trial">
+      <h1>A Fitts Experiment WebApp</h1>
+      <p>This is a small tool, built as a webapp for <a href="https://en.wikipedia.org/wiki/Fitts's_law">Fitts-inspired experiments</a>.</p>
+
+      <div id="actions">
+        <button id="runtrial-button" class="button" onclick="fitts.startTrial()">Start Trial</button>
+        <button class="button" onclick="fitts.resetToDefaultParams()">Reset trial params</button>
+        <button id="graphs-button" class="view-button" onclick="fitts.showGraphsForTrials()">Show Graphs</button>
+        <button id="logs-button" class="view-button" onclick="fitts.showLogs()">Show Logs</button>
+        <button id="runtrial-button" class="button" onclick="fitts.clearLogs()">Delete all local data</button>
+      </div>
+
+      <div id="trial-settings">
+        <div>Trial Params: <div>
+        <textarea id="trial-params"></textarea>
+      </div>
+
+      <div id="info"></div>
+    </div>
+  </body>
+</html>
