@@ -10,7 +10,7 @@
   "scripts": {
     "serve": "webpack-dev-server --config webpack_dev.config.js",
     "build": "webpack --config webpack_dev.config.js",
-    "deploy": "webpack --config webpack_dev.config.js && git checkout gh-pages && cp build/dev/* ./ && git add -u && git status"
+    "deploy": "yarn build && git checkout gh-pages && cp build/dev/* ./ && git add -u && git status"
   },
   "license": "Apache-2.0",
   "author": "Lucas Dixon",

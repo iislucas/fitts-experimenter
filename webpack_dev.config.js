@@ -32,7 +32,7 @@ module.exports = {
     // The path to output built files to
     path: 'build/dev',
     // The path these files expect to be at on the web-server
-    publicPath: '/fitts-experiment/',
+    publicPath: '',
     // How files are named
     filename: '[name].js',
     chunkFilename: '[id].chunk.js',
