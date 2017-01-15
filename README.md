@@ -1,7 +1,8 @@
 # A Fitts Experiment WebApp
 
 This repository provides a webapp to experiment with
-[Fitts tasks](https://en.wikipedia.org/wiki/Fitts's_law).
+[Fitts tasks](https://en.wikipedia.org/wiki/Fitts's_law). The github hosted
+(static) webapp is at: https://iislucas.github.com/fitts-experimenter
 
 ## How is it built?
 
