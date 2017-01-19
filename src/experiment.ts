@@ -11,6 +11,7 @@ import {
   MeasurementTextSprite, dateStringOfTimestamp
 } from './helpers';
 
+import * as mathjs from 'mathjs';
 import * as trial_parameters from './trial_parameters';
 
 declare var require : (filename:string) => string;
@@ -26,6 +27,8 @@ export interface EventLog {
   timeSinceLastClick: number;
   dx: number;
   dy: number;
+  x: number;
+  y: number;
 }
 
 export interface ContactEventLog {
@@ -95,7 +98,8 @@ export function textOfLogs(): string {
 
     trialLogStrings = trialLogStrings.concat(trialLog.events.map((eventLog: EventLog) => {
       let dateString = dateStringOfTimestamp(eventLog.timestamp);
-      return `trial-${trialLog.trialId}, ${dateString}, ` +
+      return `trial-${trialLog.trialId}, ` +
+        `${eventLog.x}, ${eventLog.y}, ` +
         `${eventLog.circleClickedOn}, ${eventLog.distanceToCenter}, ` +
         `${eventLog.dx.toFixed(2)}, ${eventLog.dy.toFixed(2)}, ` +
         `${eventLog.timeSinceLastClick}`;
@@ -106,6 +110,11 @@ export function textOfLogs(): string {
       return `trial-${trialLog.trialId}, ${dateString}, ${eventLog.kind}`;
     }));
 
+    let ds = trialLog.events.map(
+        (e: EventLog) => { return e.distanceToCenter; });
+
+    trialLogStrings.push(`std-dev-distanceToCenter: ${mathjs.std(ds)}`);
+    trialLogStrings.push(`mean-distanceToCenter: ${mathjs.mean(ds)}`);
     trialLogStrings.push(`averageDistanceToCenter: ${trialAverageDistanceToCenter(trialLog)}`);
     trialLogStrings.push(`averageTimeToTap: ${trialAverageTimeToTap(trialLog)}`);
     return trialLogStrings.join('\n');
@@ -294,6 +303,8 @@ export class Trial {
           timeSinceLastClick: timeDiff,
           dx: dx,
           dy: dy,
+          x: this.env.mousePosition.x,
+          y: this.env.mousePosition.y,
     };
     this.trialLog.events.push(eventLog);
     //console.log('Click happend! : ' + JSON.stringify(eventLog));
