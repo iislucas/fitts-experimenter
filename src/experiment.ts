@@ -14,11 +14,8 @@ import {
 import * as mathjs from 'mathjs';
 import * as trial_parameters from './trial_parameters';
 
-declare var require : (filename:string) => string;
-
-let audiofilename = require('./beep.mp3');
-let audio = new Audio(audiofilename);
-console.log(audiofilename);
+// Global web audio api context
+const audioCtx = new AudioContext();
 
 export interface EventLog {
   timestamp: number;
@@ -123,6 +120,16 @@ export function textOfLogs(): string {
   return logStrings.join('\n');
 }
 
+function beep(time:number) {
+  // create Oscillator node
+  let oscillator = audioCtx.createOscillator();
+  oscillator.type = 'square';
+  oscillator.frequency.value = 400; // value in hertz
+  oscillator.connect(audioCtx.destination);
+  oscillator.start();
+  setTimeout(() => { oscillator.stop(); }, time);
+}
+
 export class Trial {
   public env: PixiEnvironment;
   public startTime: number;
@@ -152,7 +159,7 @@ export class Trial {
         timestamp: Date.now(),
         kind: 'disconnected'
       });
-      audio.play();
+      beep(25);
       this.isConnected = false;
     }
 

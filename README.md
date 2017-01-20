@@ -62,9 +62,3 @@ To create a fresh install, remove the directories `node_modules` and the
 ```
 yarn run deploy
 ```
-
-# The beep sound
-
-The beep sound (`beep.mp3`) comes from https://notificationsounds.com/notification-sounds/beep-472
-and is under the [Creative Commons Attribution 4.0 International
-License](https://creativecommons.org/licenses/by/4.0/legalcode).
