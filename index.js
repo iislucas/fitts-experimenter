@@ -383,7 +383,7 @@
 	            this.trialLog.events.push(eventLog);
 	            //console.log('Click happend! : ' + JSON.stringify(eventLog));
 	        };
-	        this.env = new helpers_1.PixiEnvironment();
+	        this.env = new helpers_1.PixiEnvironment({ bgcolor: params.bgcolor });
 	        this.domElement = this.env.renderer.view;
 	        this.onceDone = new Promise((F, R) => {
 	            this.stop = () => {
@@ -469,7 +469,7 @@
 	"use strict";
 	// The basic stuff for the environment.
 	class PixiEnvironment {
-	    constructor() {
+	    constructor(params) {
 	        this.dispose = () => {
 	            this.ticker.remove(this.updateFunction_);
 	        };
@@ -483,7 +483,8 @@
 	        this.mousePosition = new PIXI.Point(0, 0);
 	        this.ticker = PIXI.ticker.shared;
 	        this.updateFunctions = [];
-	        this.renderer = PIXI.autoDetectRenderer(this.width, this.height, { backgroundColor: 0xFFFFFF });
+	        this.renderer = PIXI.autoDetectRenderer(this.width, this.height, { backgroundColor: params.bgcolor ?
+	                parseInt(params.bgcolor) : 0xFFFFFF });
 	        this.renderer.view.style.position = 'absolute';
 	        this.renderer.view.style.display = 'block';
 	        this.renderer.autoResize = true;
@@ -55955,23 +55956,24 @@
 	;
 	;
 	let circle1_params = {
-	    orbit_distance: 100,
-	    speed: 0.6,
-	    init_angle: 180,
-	    radius: 25,
-	    color: "0x0000FF" //color
+	    orbit_distance: 200,
+	    speed: 0,
+	    init_angle: 0,
+	    radius: 5,
+	    color: '0x0000FF' //color
 	};
 	let circle2_params = {
-	    orbit_distance: 100,
-	    speed: 0.6,
-	    init_angle: 120,
-	    radius: 25,
-	    color: "0xFF0000" //color
+	    orbit_distance: 200,
+	    speed: 0,
+	    init_angle: 180,
+	    radius: 5,
+	    color: '0xFF0000' //color
 	};
 	exports.default_params = {
 	    circle1: circle1_params,
 	    circle2: circle2_params,
-	    duration: 5
+	    duration: 10,
+	    bgcolor: '0x000000'
 	};
 
 
