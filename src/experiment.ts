@@ -182,7 +182,7 @@ export class Trial {
   public stop = () : void => {}
 
   constructor(public params: trial_parameters.Params) {
-    this.env = new PixiEnvironment();
+    this.env = new PixiEnvironment({ bgcolor: params.bgcolor });
     this.domElement = this.env.renderer.view;
 
     this.onceDone = new Promise<void>((F, R) => {
@@ -240,7 +240,7 @@ export class Trial {
       this.env,
       5, // Radius
       new PIXI.Point(this.env.width / 2, this.env.height / 2), // position
-      0x000000//color
+      0x000000 //color
     );
 
     this.orbitingCircle1 = new OrbitingCircleSprite(

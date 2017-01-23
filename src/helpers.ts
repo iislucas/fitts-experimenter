@@ -17,7 +17,7 @@ export class PixiEnvironment {
   public fps: FpsSprite;
   public updateFunctions: ((timeDelta: number) => void)[];
 
-  public constructor() {
+  public constructor(params: {bgcolor?:string}) {
 
     //console.log('new env');
     this.width = window.innerWidth;
@@ -28,7 +28,8 @@ export class PixiEnvironment {
 
     this.renderer = PIXI.autoDetectRenderer(
         this.width, this.height,
-        { backgroundColor: 0xFFFFFF });
+        { backgroundColor: params.bgcolor ?
+              parseInt(params.bgcolor) : 0xFFFFFF });
     this.renderer.view.style.position = 'absolute';
     this.renderer.view.style.display = 'block';
     this.renderer.autoResize = true;

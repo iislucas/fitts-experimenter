@@ -18,26 +18,28 @@ export interface Params {
   circle1: CircleParams;
   circle2: CircleParams;
   duration: number;  // Length of the trial in microseconds.
+  bgcolor:  string;
 };
 
 let circle1_params = {
-  orbit_distance: 100, // orbit distance.
-  speed: 0.6, // speed (in degrees / 60th of a second)
-  init_angle: 180,  // initial angle (in degrees)
-  radius: 25,  // radius
-  color: "0x0000FF" //color
+  orbit_distance: 200, // orbit distance.
+  speed: 0, // speed (in degrees / 60th of a second)
+  init_angle: 0,  // initial angle (in degrees)
+  radius: 5,  // radius
+  color: '0x0000FF' //color
 };
 
 let circle2_params = {
-  orbit_distance: 100, // orbit distance.
-  speed: 0.6, // speed (in degrees / 60th of a second)
-  init_angle: 120,  // initial angle (in degrees)
-  radius: 25,  // radius
-  color: "0xFF0000" //color
+  orbit_distance: 200, // orbit distance.
+  speed: 0, // speed (in degrees / 60th of a second)
+  init_angle: 180,  // initial angle (in degrees)
+  radius: 5,  // radius
+  color: '0xFF0000' //color
 };
 
-export const default_params = {
+export const default_params : Params = {
   circle1: circle1_params,
   circle2: circle2_params,
-  duration: 5
+  duration: 10,
+  bgcolor: '0x000000'
 };
