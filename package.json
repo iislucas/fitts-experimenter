@@ -16,6 +16,9 @@
   "author": "Lucas Dixon",
   "dependencies": {
     "@types/d3": "^4.3.0",
+    "@types/gapi": "^0.0.30",
+    "@types/gapi.auth2": "^0.0.32",
+    "@types/google.picker": "^0.0.28",
     "@types/mathjs": "^0.0.32",
     "@types/pixi.js": "^4.1.0",
     "@types/webpack": "^2.0.0",

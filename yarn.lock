@@ -178,9 +178,23 @@
     "@types/d3-voronoi" "1.1"
     "@types/d3-zoom" "1.1"
 
+"@types/gapi.auth2@^0.0.32":
+  version "0.0.32"
+  resolved "https://registry.yarnpkg.com/@types/gapi.auth2/-/gapi.auth2-0.0.32.tgz#70cdbf52dae884f020e24020bb6a089180761c1b"
+  dependencies:
+    "@types/gapi" "*"
+
+"@types/gapi@*", "@types/gapi@^0.0.30":
+  version "0.0.30"
+  resolved "https://registry.yarnpkg.com/@types/gapi/-/gapi-0.0.30.tgz#82a1af3ac24a09c7d55f18b869833c8cb01259b7"
+
 "@types/geojson@*":
   version "0.0.31"
   resolved "https://registry.yarnpkg.com/@types/geojson/-/geojson-0.0.31.tgz#ad8d4cb76f7bf13c59babc5bed77f2dd2c4175bc"
+
+"@types/google.picker@^0.0.28":
+  version "0.0.28"
+  resolved "https://registry.yarnpkg.com/@types/google.picker/-/google.picker-0.0.28.tgz#ab28755607301e9677bb0b81679e243b878d20f4"
 
 "@types/mathjs@^0.0.32":
   version "0.0.32"
