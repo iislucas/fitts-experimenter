@@ -12,75 +12,14 @@ import {
 } from './helpers';
 
 import * as mathjs from 'mathjs';
-import * as trial_parameters from './trial_parameters';
+import * as trial from './trial';
+import * as params from './params';
 
 // Global web audio api context
 const audioCtx = new AudioContext();
 
-export interface EventLog {
-  timestamp: number;
-  circleClickedOn: string;
-  distanceToCenter: number;
-  timeSinceLastClick: number;
-  dx: number;
-  dy: number;
-  x: number;
-  y: number;
-}
-
-export interface ContactEventLog {
-  timestamp: number;
-  kind: 'connected'|'disconnected';
-}
-
-export interface TrialLog {
-  start_timestamp: number;
-  end_timestamp: number;
-  trialId: string;
-  params: trial_parameters.Params;
-  events: EventLog[];
-  // Times when the participants lost contact.
-  contactEvents: ContactEventLog[];
-}
-
-export function trialAverageDistanceToCenter(trialLog: TrialLog) {
-    let sumOfDistances = 0;
-    // Skip the zeroth value they weren't moving from a prebvious tap/click
-    for (let i = 1; i < trialLog.events.length; i++) {
-      sumOfDistances += trialLog.events[i].distanceToCenter;
-    }
-    return sumOfDistances / trialLog.events.length;
-}
-
-export function trialAverageDxToCenter(trialLog: TrialLog) {
-    let sumOfDistances = 0;
-    // Skip the zeroth value they weren't moving from a prebvious tap/click
-    for (let i = 1; i < trialLog.events.length; i++) {
-      sumOfDistances += Math.abs(trialLog.events[i].dx);
-    }
-    return sumOfDistances / trialLog.events.length;
-}
-
-export function trialAverageDyToCenter(trialLog: TrialLog) {
-    let sumOfDistances = 0;
-    // Skip the zeroth value they weren't moving from a prebvious tap/click
-    for (let i = 1; i < trialLog.events.length; i++) {
-      sumOfDistances += Math.abs(trialLog.events[i].dy);
-    }
-    return sumOfDistances / trialLog.events.length;
-}
-
-export function trialAverageTimeToTap(trialLog: TrialLog) {
-    let sumOfTimes = 0;
-    // Skip the zeroth value they weren't moving from a prebvious tap/click
-    for (let i = 1; i < trialLog.events.length; i++) {
-      sumOfTimes += trialLog.events[i].timeSinceLastClick;
-    }
-    return sumOfTimes / trialLog.events.length;
-}
-
-export let logs: TrialLog[] = [];
-export function setLogs(new_logs: TrialLog[]) {
+export let logs: trial.Log[] = [];
+export function setLogs(new_logs: trial.Log[]) {
   logs = new_logs;
 }
 
@@ -88,12 +27,36 @@ export function clearLogs() {
   logs = [];
 }
 
+export function textsForTargetStats(stats : trial.TargetStats): string[] {
+  let trialLogStrings :string[] = [];
+  trialLogStrings.push(`Number of events used: ${stats.ts.length}`);
+  trialLogStrings.push(`mean(averageTimeToTap): ${mathjs.mean(stats.ts)}`);
+  trialLogStrings.push(`std(averageTimeToTap): ${mathjs.std(stats.ts)}`);
+
+  trialLogStrings.push(`xWidth: ${stats.xWidth}`);
+  trialLogStrings.push(`yWidth: ${stats.xWidth}`);
+  trialLogStrings.push(`width: ${stats.width}`);
+
+  trialLogStrings.push(`mean(dx): ${mathjs.mean(stats.dxs)}`);
+  trialLogStrings.push(`std(dx): ${mathjs.std(stats.dxs)}`);
+  trialLogStrings.push(`mean(dy): ${mathjs.mean(stats.dys)}`);
+  trialLogStrings.push(`std(dy): ${mathjs.std(stats.dys)}`);
+
+  trialLogStrings.push(`mean(abs(dx)): ${mathjs.mean(stats.absdxs)}`);
+  trialLogStrings.push(`std(abs(dx)): ${mathjs.std(stats.absdxs)}`);
+  trialLogStrings.push(`mean(abd(dy)): ${mathjs.mean(stats.absdys)}`);
+  trialLogStrings.push(`std(abs(dy)): ${mathjs.std(stats.absdys)}`);
+  trialLogStrings.push(`mean(distanceToCenter): ${mathjs.mean(stats.ds)}`);
+  trialLogStrings.push(`std(distanceToCenter): ${mathjs.std(stats.ds)}`);
+  return trialLogStrings;
+}
+
 export function textOfLogs(): string {
-  let logStrings : string[] = logs.map((trialLog:TrialLog) => {
+  let logStrings : string[] = logs.map((trialLog:trial.Log) => {
     let trialLogStrings: string[] = [];
     trialLogStrings.push(`\nTrial-params: \n${JSON.stringify(trialLog.params, null, 2)}`);
 
-    trialLogStrings = trialLogStrings.concat(trialLog.events.map((eventLog: EventLog) => {
+    trialLogStrings = trialLogStrings.concat(trialLog.events.map((eventLog: trial.Event) => {
       let dateString = dateStringOfTimestamp(eventLog.timestamp);
       return `trial-${trialLog.trialId}, ` +
         `${eventLog.x}, ${eventLog.y}, ` +
@@ -102,18 +65,29 @@ export function textOfLogs(): string {
         `${eventLog.timeSinceLastClick}`;
     }));
 
-    trialLogStrings = trialLogStrings.concat(trialLog.contactEvents.map((eventLog: ContactEventLog) => {
+    trialLogStrings = trialLogStrings.concat(trialLog.contactEvents.map((eventLog: trial.ContactLog) => {
       let dateString = dateStringOfTimestamp(eventLog.timestamp);
       return `trial-${trialLog.trialId}, ${dateString}, ${eventLog.kind}`;
     }));
 
-    let ds = trialLog.events.map(
-        (e: EventLog) => { return e.distanceToCenter; });
+    trialLogStrings.push(`total number of events: ${trialLog.events.length}`);
 
-    trialLogStrings.push(`std-dev-distanceToCenter: ${mathjs.std(ds)}`);
-    trialLogStrings.push(`mean-distanceToCenter: ${mathjs.mean(ds)}`);
-    trialLogStrings.push(`averageDistanceToCenter: ${trialAverageDistanceToCenter(trialLog)}`);
-    trialLogStrings.push(`averageTimeToTap: ${trialAverageTimeToTap(trialLog)}`);
+    trialLogStrings.push(`-- Stats for all targets--`);
+    let allEventStats = trial.stats(trialLog);
+    trialLogStrings =
+        trialLogStrings.concat(textsForTargetStats(allEventStats));
+
+    trialLogStrings.push(`-- Stats for ${params.CIRCLE1_NAME} --`);
+    let c1EventStats = trial.stats(trialLog, params.CIRCLE1_NAME);
+    trialLogStrings =
+        trialLogStrings.concat(textsForTargetStats(c1EventStats));
+
+    trialLogStrings.push(`-- Stats for ${params.CIRCLE2_NAME} --`);
+    let c2EventStats = trial.stats(trialLog, params.CIRCLE2_NAME);
+    trialLogStrings =
+        trialLogStrings.concat(textsForTargetStats(c2EventStats));
+    trialLogStrings.push(`-----------------------------------------`);
+
     return trialLogStrings.join('\n');
   });
 
@@ -139,7 +113,7 @@ export class Trial {
   public lastclicktime: number;
   public onceDone: Promise<void>;
   public domElement: HTMLElement;
-  public trialLog: TrialLog;
+  public trialLog: trial.Log;
   private timingText: PIXI.Text;
   // Used to detect is participants are connected.
   private isConnected: boolean = false;
@@ -181,8 +155,8 @@ export class Trial {
 
   public stop = () : void => {}
 
-  constructor(public params: trial_parameters.Params) {
-    this.env = new PixiEnvironment({ bgcolor: params.bgcolor });
+  constructor(public trialParams: params.Experiment) {
+    this.env = new PixiEnvironment({ bgcolor: trialParams.bgcolor });
     this.domElement = this.env.renderer.view;
 
     this.onceDone = new Promise<void>((F, R) => {
@@ -193,7 +167,7 @@ export class Trial {
 
       this.env.updateFunctions.push((deltaTime) => {
         this.timingText.text = 'Expriment time: ' + (Date.now() - this.startTime);
-        if (Date.now() - this.startTime > this.params.duration * 1000) {
+        if (Date.now() - this.startTime > this.trialParams.durationSeconds * 1000) {
           this.stop();
         }
       });
@@ -227,7 +201,7 @@ export class Trial {
       trialId: dateStringOfTimestamp(this.startTime),
       events: [],
       contactEvents: [],
-      params: params,
+      params: trialParams,
     };
     logs.push(this.trialLog);
 
@@ -246,22 +220,22 @@ export class Trial {
     this.orbitingCircle1 = new OrbitingCircleSprite(
       this.env,
       centerCircle.getCenterPosition(), // orbit center.
-      params.circle1.orbit_distance, // orbit distance.
-      params.circle1.speed, // speed (in degrees / 60th of a second)
-      params.circle1.init_angle,  // initial angle (in degrees)
-      params.circle1.radius,  // radius
-      parseInt(params.circle1.color) //color
+      trialParams.circle1.orbit_distance, // orbit distance.
+      trialParams.circle1.speed, // speed (in degrees / 60th of a second)
+      trialParams.circle1.init_angle,  // initial angle (in degrees)
+      trialParams.circle1.radius,  // radius
+      parseInt(trialParams.circle1.color) //color
     );
 
     this.orbitingCircle2 = new OrbitingCircleSprite(
       this.env,
       centerCircle.getCenterPosition(),
       // orbitingCircle1.circleSprite.getCenterPosition(), // orbit center.
-      params.circle2.orbit_distance, // orbit distance.
-      params.circle2.speed, // speed (in degrees / 60th of a second)
-      params.circle2.init_angle,  // initial angle (in degrees)
-      params.circle2.radius,  // radius
-      parseInt(params.circle2.color) //color
+      trialParams.circle2.orbit_distance, // orbit distance.
+      trialParams.circle2.speed, // speed (in degrees / 60th of a second)
+      trialParams.circle2.init_angle,  // initial angle (in degrees)
+      trialParams.circle2.radius,  // radius
+      parseInt(trialParams.circle2.color) //color
     );
 
     let dx = this.orbitingCircle1.circleSprite.getCenterPosition().x -
@@ -292,18 +266,18 @@ export class Trial {
     let dy: number;
 
     if (d1 < d2) {
-      circleName = 'c1:BlueTap';
+      circleName = params.CIRCLE1_NAME;
       accuracy = d1;
       dx = this.env.mousePosition.x - c1.x;
       dy = this.env.mousePosition.y - c1.y;
     } else {
-      circleName = 'c2:RedTap';
+      circleName = params.CIRCLE2_NAME;
       accuracy = d2;
       dx = this.env.mousePosition.x - c2.x;
       dy = this.env.mousePosition.y - c2.y;
     }
 
-    let eventLog: EventLog = {
+    let eventLog: trial.Event = {
           timestamp: this.lastclicktime,
           circleClickedOn: circleName,
           distanceToCenter: accuracy,

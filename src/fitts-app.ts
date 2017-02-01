@@ -6,10 +6,12 @@
  * found in the LICENSE file
  */
 
-import * as experiment from './experiment';
-import * as trial_parameters from './trial_parameters';
-
 import * as charts from './charts';
+import * as experiment from './experiment';
+import * as params from './params';
+import * as trial from './trial';
+
+import * as mathjs from 'mathjs';
 
 import 'pixi.js';
 
@@ -42,9 +44,9 @@ export class App {
 
     // Initialize params
     let trial_params_string = localStorage.getItem(STORAGE_KEY_PARAMS);
-    let trial_params: trial_parameters.Params;
+    let trial_params: params.Experiment;
     if(!trial_params_string) {
-      trial_params = JSON.parse(JSON.stringify(trial_parameters.default_params));
+      trial_params = JSON.parse(JSON.stringify(params.defaults));
     } else {
       trial_params = JSON.parse(trial_params_string);
     }
@@ -61,16 +63,16 @@ export class App {
   }
 
 
-  addGraphForTrial(parentEl: HTMLElement, trial: experiment.TrialLog) {
-    let data_dx = trial.events.map((e:experiment.EventLog) => {
+  addGraphForTrial(parentEl: HTMLElement, trial: trial.Log) {
+    let data_dx = trial.events.map((e:trial.Event) => {
       return { x: e.timestamp - trial.start_timestamp,
                y: e.dx }
     });
-    let data_dy = trial.events.map((e:experiment.EventLog) => {
+    let data_dy = trial.events.map((e:trial.Event) => {
       return { x: e.timestamp - trial.start_timestamp,
                y: e.dy }
     });
-    let data_d = trial.events.map((e:experiment.EventLog) => {
+    let data_d = trial.events.map((e:trial.Event) => {
       return { x: e.timestamp - trial.start_timestamp,
                y: Math.sqrt(Math.pow(e.dx, 2) + Math.pow(e.dy, 2)) }
     });
@@ -107,27 +109,29 @@ export class App {
     graphsEl.setAttribute('id', DOM_ID_GRAPHS);
     this.domInfoEl.appendChild(graphsEl);
 
-
-    for(let trial of experiment.logs) {
+    for(let trialLog of experiment.logs) {
       let graphEl = document.createElement('div');
       graphsEl.appendChild(graphEl);
 
       let textEl = document.createElement('p');
       textEl.setAttribute('class', 'graph-text');
-      textEl.textContent = 'Trial ' + trial.trialId + ':';
+      textEl.textContent = 'Trial ' + trialLog.trialId + ':';
       graphsEl.appendChild(textEl);
 
-      this.addGraphForTrial(graphsEl, trial);
-
-      d_t_avg_data.push(
-          { x: experiment.trialAverageTimeToTap(trial),
-            y: experiment.trialAverageDistanceToCenter(trial), });
-      dx_t_avg_data.push(
-          { x: experiment.trialAverageTimeToTap(trial),
-            y: experiment.trialAverageDxToCenter(trial), });
-      dy_t_avg_data.push(
-          { x: experiment.trialAverageTimeToTap(trial),
-            y: experiment.trialAverageDyToCenter(trial), });
+      let stats = trial.stats(trialLog);
+      this.addGraphForTrial(graphsEl, trialLog);
+      d_t_avg_data.push({
+            x: mathjs.mean(stats.ts),
+            y: mathjs.mean(stats.ds),
+          });
+      dx_t_avg_data.push({
+            x: mathjs.mean(stats.ts),
+            y: mathjs.mean(stats.dxs),
+          });
+      dy_t_avg_data.push({
+            x: mathjs.mean(stats.ts),
+            y: mathjs.mean(stats.dys),
+          });
     }
 
     new charts.Chart(
@@ -182,7 +186,7 @@ export class App {
 
   resetToDefaultParams() {
     let trial_params = JSON.parse(this.trialParamsEl.value);
-    trial_params = JSON.parse(JSON.stringify(trial_parameters.default_params));
+    trial_params = JSON.parse(JSON.stringify(params.defaults));
     this.trialParamsEl.value = JSON.stringify(trial_params, null, 2);
   }
 

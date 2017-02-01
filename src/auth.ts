@@ -1,3 +1,11 @@
+/**
+ * @license
+ * Copyright The Fitts-Expeiment-WebApp Authors. All Rights Reserved.
+ *
+ * Use of this source code is governed by the Apache2 license that can be
+ * found in the LICENSE file
+ */
+
 export let xgapi :any = {};
 
 export function handleClientLoad() {
