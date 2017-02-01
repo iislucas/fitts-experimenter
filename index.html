@@ -67,8 +67,28 @@
         font-size: 12pt;
       }
     </style>
+    <!-- <meta name="google-signin-client_id" content="1026298405002-4ablf8sti600mfvd2d8qsduhllvjvnue.apps.googleusercontent.com">
+    <script>
+      function onSuccess(googleUser) {
+        console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
+      }
+      function onFailure(error) {
+        console.log(error);
+      }
+      function renderButton() {
+        gapi.signin2.render('my-signin2', {
+          'scope': 'profile email',
+          'width': 240,
+          'height': 50,
+          'longtitle': true,
+          'theme': 'dark',
+          'onsuccess': onSuccess,
+          'onfailure': onFailure
+        });
+      }
+    </script>
+    <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>-->
   </head>
-
   <body>
     <div id="trial"></div>
 
@@ -89,6 +109,10 @@
         <button id="graphs-button" class="view-button" onclick="fitts.showGraphsForTrials()">Show Graphs</button>
         <button id="logs-button" class="view-button" onclick="fitts.showLogs()">Show Logs</button>
         <button id="runtrial-button" class="button" onclick="fitts.clearLogs()">Delete all local data</button>
+        <!-- <div class="g-signin2" data-width="300" data-height="200" data-longtitle="true" data-onsuccess="onSignIn"> -->
+        <button id="signin-button" class="button" onclick="handleSignInClick()">Sign In to Google</button>
+        <button id="signout-button" class="button" onclick="handleSignOutClick()">Sign Out from Google</button>
+
       </div>
 
       <div id="trial-settings">
