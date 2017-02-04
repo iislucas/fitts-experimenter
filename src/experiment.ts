@@ -27,27 +27,43 @@ export function clearLogs() {
   logs = [];
 }
 
+function mean(xs:number[]) : number {
+  if (xs.length === 0) {
+    return 0;
+  } else {
+    mathjs.mean(xs);
+  }
+}
+
+function std(xs:number[]) : number {
+  if (xs.length === 0) {
+    return 0;
+  } else {
+    mathjs.std(xs);
+  }
+}
+
 export function textsForTargetStats(stats : trial.TargetStats): string[] {
   let trialLogStrings :string[] = [];
   trialLogStrings.push(`Number of events used: ${stats.ts.length}`);
-  trialLogStrings.push(`mean(averageTimeToTap): ${mathjs.mean(stats.ts)}`);
-  trialLogStrings.push(`std(averageTimeToTap): ${mathjs.std(stats.ts)}`);
+  trialLogStrings.push(`mean(averageTimeToTap): ${mean(stats.ts)}`);
+  trialLogStrings.push(`std(averageTimeToTap): ${std(stats.ts)}`);
 
   trialLogStrings.push(`xWidth: ${stats.xWidth}`);
   trialLogStrings.push(`yWidth: ${stats.xWidth}`);
   trialLogStrings.push(`width: ${stats.width}`);
 
-  trialLogStrings.push(`mean(dx): ${mathjs.mean(stats.dxs)}`);
-  trialLogStrings.push(`std(dx): ${mathjs.std(stats.dxs)}`);
-  trialLogStrings.push(`mean(dy): ${mathjs.mean(stats.dys)}`);
-  trialLogStrings.push(`std(dy): ${mathjs.std(stats.dys)}`);
+  trialLogStrings.push(`mean(dx): ${mean(stats.dxs)}`);
+  trialLogStrings.push(`std(dx): ${std(stats.dxs)}`);
+  trialLogStrings.push(`mean(dy): ${mean(stats.dys)}`);
+  trialLogStrings.push(`std(dy): ${std(stats.dys)}`);
 
-  trialLogStrings.push(`mean(abs(dx)): ${mathjs.mean(stats.absdxs)}`);
-  trialLogStrings.push(`std(abs(dx)): ${mathjs.std(stats.absdxs)}`);
-  trialLogStrings.push(`mean(abd(dy)): ${mathjs.mean(stats.absdys)}`);
-  trialLogStrings.push(`std(abs(dy)): ${mathjs.std(stats.absdys)}`);
-  trialLogStrings.push(`mean(distanceToCenter): ${mathjs.mean(stats.ds)}`);
-  trialLogStrings.push(`std(distanceToCenter): ${mathjs.std(stats.ds)}`);
+  trialLogStrings.push(`mean(abs(dx)): ${mean(stats.absdxs)}`);
+  trialLogStrings.push(`std(abs(dx)): ${std(stats.absdxs)}`);
+  trialLogStrings.push(`mean(abd(dy)): ${mean(stats.absdys)}`);
+  trialLogStrings.push(`std(abs(dy)): ${std(stats.absdys)}`);
+  trialLogStrings.push(`mean(distanceToCenter): ${mean(stats.ds)}`);
+  trialLogStrings.push(`std(distanceToCenter): ${std(stats.ds)}`);
   return trialLogStrings;
 }
 

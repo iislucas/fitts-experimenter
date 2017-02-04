@@ -63,7 +63,7 @@ export interface TargetStats {
 function takeFirstPercentile<T>(ns: T[], percentile:number) : T[] {
   ns.length;
   let selected :T[] = [];
-  for (let i = 0; percentile >= (i / (ns.length - 1)); i++) {
+  for (let i = 0; percentile >= (i / (ns.length - 1)) && i < ns.length; i++) {
     selected.push(ns[i]);
   }
   return selected;
@@ -83,16 +83,12 @@ export function stats(trialLog: Log, targetName?:string) : TargetStats {
   let absdys = realEvents.map((e) => { return Math.abs(e.dy); });
   let ts = realEvents.map((e) => { return e.timeSinceLastClick; });
 
-  // let xWidth = takeFirstPercentile(absdxs.sort((n,m) => { return n - m; }),
-  //                                  0.95).pop();
-  // let yWidth = takeFirstPercentile(absdys.sort((n,m) => { return n - m; }),
-  //                                  0.95).pop();
-  // let width = takeFirstPercentile(ds.sort((n,m) => { return n - m; }),
-  //                                  0.95).pop();
-
-  let xWidth = 1;
-  let yWidth = 1;
-  let width = 1;
+  let xWidth = takeFirstPercentile(absdxs.sort((n,m) => { return n - m; }),
+                                   0.95).pop();
+  let yWidth = takeFirstPercentile(absdys.sort((n,m) => { return n - m; }),
+                                   0.95).pop();
+  let width = takeFirstPercentile(ds.sort((n,m) => { return n - m; }),
+                                   0.95).pop();
 
   return {
     ts: ts,
