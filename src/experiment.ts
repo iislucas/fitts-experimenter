@@ -31,7 +31,7 @@ function mean(xs:number[]) : number {
   if (xs.length === 0) {
     return 0;
   } else {
-    mathjs.mean(xs);
+    return mathjs.mean(xs);
   }
 }
 
@@ -39,7 +39,7 @@ function std(xs:number[]) : number {
   if (xs.length === 0) {
     return 0;
   } else {
-    mathjs.std(xs);
+    return mathjs.std(xs);
   }
 }
 
