@@ -73179,9 +73179,15 @@
 	    let absdxs = realEvents.map((e) => { return Math.abs(e.dx); });
 	    let absdys = realEvents.map((e) => { return Math.abs(e.dy); });
 	    let ts = realEvents.map((e) => { return e.timeSinceLastClick; });
-	    let xWidth = takeFirstPercentile(absdxs.sort((n, m) => { return n - m; }), 0.95).pop();
-	    let yWidth = takeFirstPercentile(absdys.sort((n, m) => { return n - m; }), 0.95).pop();
-	    let width = takeFirstPercentile(ds.sort((n, m) => { return n - m; }), 0.95).pop();
+	    // let xWidth = takeFirstPercentile(absdxs.sort((n,m) => { return n - m; }),
+	    //                                  0.95).pop();
+	    // let yWidth = takeFirstPercentile(absdys.sort((n,m) => { return n - m; }),
+	    //                                  0.95).pop();
+	    // let width = takeFirstPercentile(ds.sort((n,m) => { return n - m; }),
+	    //                                  0.95).pop();
+	    let xWidth = 1;
+	    let yWidth = 1;
+	    let width = 1;
 	    return {
 	        ts: ts,
 	        dxs: dxs,
