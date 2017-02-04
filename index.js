@@ -17448,24 +17448,40 @@
 	    exports.logs = [];
 	}
 	exports.clearLogs = clearLogs;
+	function mean(xs) {
+	    if (xs.length === 0) {
+	        return 0;
+	    }
+	    else {
+	        mathjs.mean(xs);
+	    }
+	}
+	function std(xs) {
+	    if (xs.length === 0) {
+	        return 0;
+	    }
+	    else {
+	        mathjs.std(xs);
+	    }
+	}
 	function textsForTargetStats(stats) {
 	    let trialLogStrings = [];
 	    trialLogStrings.push(`Number of events used: ${stats.ts.length}`);
-	    trialLogStrings.push(`mean(averageTimeToTap): ${mathjs.mean(stats.ts)}`);
-	    trialLogStrings.push(`std(averageTimeToTap): ${mathjs.std(stats.ts)}`);
+	    trialLogStrings.push(`mean(averageTimeToTap): ${mean(stats.ts)}`);
+	    trialLogStrings.push(`std(averageTimeToTap): ${std(stats.ts)}`);
 	    trialLogStrings.push(`xWidth: ${stats.xWidth}`);
 	    trialLogStrings.push(`yWidth: ${stats.xWidth}`);
 	    trialLogStrings.push(`width: ${stats.width}`);
-	    trialLogStrings.push(`mean(dx): ${mathjs.mean(stats.dxs)}`);
-	    trialLogStrings.push(`std(dx): ${mathjs.std(stats.dxs)}`);
-	    trialLogStrings.push(`mean(dy): ${mathjs.mean(stats.dys)}`);
-	    trialLogStrings.push(`std(dy): ${mathjs.std(stats.dys)}`);
-	    trialLogStrings.push(`mean(abs(dx)): ${mathjs.mean(stats.absdxs)}`);
-	    trialLogStrings.push(`std(abs(dx)): ${mathjs.std(stats.absdxs)}`);
-	    trialLogStrings.push(`mean(abd(dy)): ${mathjs.mean(stats.absdys)}`);
-	    trialLogStrings.push(`std(abs(dy)): ${mathjs.std(stats.absdys)}`);
-	    trialLogStrings.push(`mean(distanceToCenter): ${mathjs.mean(stats.ds)}`);
-	    trialLogStrings.push(`std(distanceToCenter): ${mathjs.std(stats.ds)}`);
+	    trialLogStrings.push(`mean(dx): ${mean(stats.dxs)}`);
+	    trialLogStrings.push(`std(dx): ${std(stats.dxs)}`);
+	    trialLogStrings.push(`mean(dy): ${mean(stats.dys)}`);
+	    trialLogStrings.push(`std(dy): ${std(stats.dys)}`);
+	    trialLogStrings.push(`mean(abs(dx)): ${mean(stats.absdxs)}`);
+	    trialLogStrings.push(`std(abs(dx)): ${std(stats.absdxs)}`);
+	    trialLogStrings.push(`mean(abd(dy)): ${mean(stats.absdys)}`);
+	    trialLogStrings.push(`std(abs(dy)): ${std(stats.absdys)}`);
+	    trialLogStrings.push(`mean(distanceToCenter): ${mean(stats.ds)}`);
+	    trialLogStrings.push(`std(distanceToCenter): ${std(stats.ds)}`);
 	    return trialLogStrings;
 	}
 	exports.textsForTargetStats = textsForTargetStats;
@@ -73163,7 +73179,7 @@
 	function takeFirstPercentile(ns, percentile) {
 	    ns.length;
 	    let selected = [];
-	    for (let i = 0; percentile >= (i / (ns.length - 1)); i++) {
+	    for (let i = 0; percentile >= (i / (ns.length - 1)) && i < ns.length; i++) {
 	        selected.push(ns[i]);
 	    }
 	    return selected;
@@ -73179,15 +73195,9 @@
 	    let absdxs = realEvents.map((e) => { return Math.abs(e.dx); });
 	    let absdys = realEvents.map((e) => { return Math.abs(e.dy); });
 	    let ts = realEvents.map((e) => { return e.timeSinceLastClick; });
-	    // let xWidth = takeFirstPercentile(absdxs.sort((n,m) => { return n - m; }),
-	    //                                  0.95).pop();
-	    // let yWidth = takeFirstPercentile(absdys.sort((n,m) => { return n - m; }),
-	    //                                  0.95).pop();
-	    // let width = takeFirstPercentile(ds.sort((n,m) => { return n - m; }),
-	    //                                  0.95).pop();
-	    let xWidth = 1;
-	    let yWidth = 1;
-	    let width = 1;
+	    let xWidth = takeFirstPercentile(absdxs.sort((n, m) => { return n - m; }), 0.95).pop();
+	    let yWidth = takeFirstPercentile(absdys.sort((n, m) => { return n - m; }), 0.95).pop();
+	    let width = takeFirstPercentile(ds.sort((n, m) => { return n - m; }), 0.95).pop();
 	    return {
 	        ts: ts,
 	        dxs: dxs,
