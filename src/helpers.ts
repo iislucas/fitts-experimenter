@@ -141,7 +141,7 @@ export class CircleSprite {
 }
 
 
-function to_radians(degrees: number) {
+export function toRadians(degrees: number) {
   const DEGREES_TO_RADIANS = (Math.PI + Math.PI) / 360;
   return degrees * DEGREES_TO_RADIANS;
 }
@@ -168,11 +168,11 @@ export class OrbitingCircleSprite {
 
   public calculateCircleYPosition() {
     return this.orbitCenter.y +
-      Math.sin(to_radians(this.angle)) * this.orbitDistance;
+      Math.sin(toRadians(this.angle)) * this.orbitDistance;
   }
   public calculateCircleXPosition() {
     return this.orbitCenter.x +
-      Math.cos(to_radians(this.angle)) * this.orbitDistance;
+      Math.cos(toRadians(this.angle)) * this.orbitDistance;
   }
 
   public update() {

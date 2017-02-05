@@ -126,20 +126,22 @@ export class App {
       graphsEl.appendChild(textEl);
 
       let stats = trial.stats(trialLog);
-      if (stats.ts.length > 0 && stats.ds.length > 0 && stats.dxs.length > 0 &&
-          stats.dys.length > 0) {
+      if (stats.data.ts.length > 0 &&
+          stats.data.ds.length > 0 &&
+          stats.data.dxs.length > 0 &&
+          stats.data.dys.length > 0) {
         this.addGraphForTrial(graphsEl, trialLog);
         d_t_avg_data.push({
-              x: mathjs.mean(stats.ts),
-              y: mathjs.mean(stats.ds),
+              x: mathjs.mean(stats.data.ts),
+              y: mathjs.mean(stats.data.ds),
             });
         dx_t_avg_data.push({
-              x: mathjs.mean(stats.ts),
-              y: mathjs.mean(stats.dxs),
+              x: mathjs.mean(stats.data.ts),
+              y: mathjs.mean(stats.data.dxs),
             });
         dy_t_avg_data.push({
-              x: mathjs.mean(stats.ts),
-              y: mathjs.mean(stats.dys),
+              x: mathjs.mean(stats.data.ts),
+              y: mathjs.mean(stats.data.dys),
             });
       }
     }
@@ -171,18 +173,26 @@ export class App {
       preTrialElement.hidden = false;
       trialElement.hidden = true;
       trialElement.removeChild(this.data.currentTrial.domElement);
-      localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(experiment.logs));
+      this.save();
     });
   }
 
-
-  showLogs() {
+  showRawLogs() {
     this.removeInfoStuff();
 
     let logsEl = document.createElement('div');
     logsEl.setAttribute('id', DOM_ID_LOGS);
     this.domInfoEl.appendChild(logsEl);
-    logsEl.textContent = experiment.textOfLogs();
+    logsEl.textContent = experiment.makeRawTextLogs();
+  }
+
+  showTrialLogs() {
+    this.removeInfoStuff();
+
+    let logsEl = document.createElement('div');
+    logsEl.setAttribute('id', DOM_ID_LOGS);
+    this.domInfoEl.appendChild(logsEl);
+    logsEl.textContent = experiment.csvTrialLogs();
   }
 
   resetToDefaultParams() {
@@ -209,9 +219,9 @@ export class App {
     window.open(url);
   }
 
-  public downloadCsvRawLogs = () : void => {
+  public downloadCsvTrialLogs = () : void => {
     let file = new File(
-      [experiment.rawCsvLogs()],
+      [experiment.csvTrialLogs()],
       'fitts-app-' + helpers.dateStringOfTimestamp(Date.now()) + '.csv',
       { type: 'text/csv;charset=utf-8'}
     );
@@ -219,6 +229,10 @@ export class App {
     //     { type: 'text/csv;charset=utf-8'});
     let url = URL.createObjectURL(file);
     window.open(url);
+  }
+
+  public save() {
+    localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(experiment.logs));
   }
 
   public handleFileSelect = (evt:Event) : void => {
@@ -246,6 +260,8 @@ export class App {
           console.log('parseing json');
           let json = JSON.parse((e.target as FileReader).result);
           console.log(json);
+          experiment.setLogs(json);
+          this.save();
         }
       };
 

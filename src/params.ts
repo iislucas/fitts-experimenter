@@ -45,7 +45,7 @@ let circle2_params = {
 export const defaults : Experiment = {
   circle1: circle1_params,
   circle2: circle2_params,
-  skipFirstNTaps: 20,
+  skipFirstNTaps: 3,
   durationSeconds: 10,
   bgcolor: '0x000000'
 };

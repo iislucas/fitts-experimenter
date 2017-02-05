@@ -35,7 +35,7 @@ export interface Log {
   contactEvents: ContactLog[];
 }
 
-export interface TargetStats {
+export interface TargetStatsData {
   // Time since last event.
   ts : number[];
   // distance on x-axis from target (negative is to left of the target,
@@ -59,6 +59,26 @@ export interface TargetStats {
   width: number,
 }
 
+export interface TargetStatsSummary {
+  n: number;
+  mt_mean: number;
+  mt_std: number;
+  eff_width: number;
+  eff_xwidth: number;
+  eff_ywidth: number;
+  mean_d: number;
+  std_d: number;
+  mean_dx: number;
+  std_dx: number;
+  mean_dy: number;
+  std_dy: number;
+}
+
+export interface TargetStats {
+  summary: TargetStatsSummary;
+  data: TargetStatsData;
+}
+
 // Take the first |percentile| of elements.
 function takeFirstPercentile<T>(ns: T[], percentile:number) : T[] {
   ns.length;
@@ -67,6 +87,22 @@ function takeFirstPercentile<T>(ns: T[], percentile:number) : T[] {
     selected.push(ns[i]);
   }
   return selected;
+}
+
+function mean(xs:number[]) : number {
+  if (xs.length === 0) {
+    return 0;
+  } else {
+    return mathjs.mean(xs);
+  }
+}
+
+function std(xs:number[]) : number {
+  if (xs.length === 0) {
+    return 0;
+  } else {
+    return mathjs.std(xs);
+  }
 }
 
 export function stats(trialLog: Log, targetName?:string) : TargetStats {
@@ -90,7 +126,7 @@ export function stats(trialLog: Log, targetName?:string) : TargetStats {
   let width = takeFirstPercentile(ds.sort((n,m) => { return n - m; }),
                                    0.95).pop();
 
-  return {
+  let values = {
     ts: ts,
     dxs: dxs,
     dys: dys,
@@ -101,7 +137,30 @@ export function stats(trialLog: Log, targetName?:string) : TargetStats {
     yWidth: yWidth,
     width: width,
   };
+
+  let summary = {
+    n: values.ts.length,
+    mt_mean: mean(values.ts),
+    mt_std: std(values.ts),
+    eff_width: values.width,
+    eff_xwidth: values.xWidth,
+    eff_ywidth: values.yWidth,
+    mean_d: mean(values.ds),
+    std_d: std(values.ds),
+    mean_dx: mean(values.dxs),
+    std_dx: std(values.dxs),
+    mean_dy: mean(values.dys),
+    std_dy: std(values.dys),
+  };
+
+  return {
+    data: values,
+    summary: summary,
+  };
 }
+
+
+
 
 export function RealEvents(trialLog: Log) {
     let events : Event[] = trialLog.events.slice(

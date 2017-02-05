@@ -65,7 +65,7 @@ export class Chart {
       this.bounds = options.bounds;
     }
 
-    console.log(`drawing data: ${JSON.stringify(datassets)}`);
+    // console.log(`drawing data: ${JSON.stringify(datassets)}`);
 
     let margin = {top: 20, right: 20, bottom: 30, left: 50};
     this.width = width - margin.left - margin.right,
