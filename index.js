@@ -106,7 +106,7 @@
 	        this.experiment = experiment;
 	        this.data = {};
 	        this.downloadJsonLogs = () => {
-	            let file = new File([JSON.stringify(experiment.logs)], 'fitts-app-' + helpers.dateStringOfTimestamp(Date.now()) + '.json', { type: 'text/json;charset=utf-8' });
+	            let file = new File([JSON.stringify(experiment.logs)], 'fitts-app-' + helpers.dateStringOfTimestamp(Date.now()) + '.json', { type: 'application/octet-stream;charset=utf-8' });
 	            // let data = new Blob([experiment.textOfLogs()],
 	            //     { type: 'text/csv;charset=utf-8'});
 	            let url = URL.createObjectURL(file);
