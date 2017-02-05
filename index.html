@@ -109,9 +109,14 @@
         <button id="graphs-button" class="view-button" onclick="fitts.showGraphsForTrials()">Show Graphs</button>
         <button id="logs-button" class="view-button" onclick="fitts.showLogs()">Show Logs</button>
         <button id="runtrial-button" class="button" onclick="fitts.clearLogs()">Delete all local data</button>
-        <!-- <div class="g-signin2" data-width="300" data-height="200" data-longtitle="true" data-onsuccess="onSignIn"> -->
+
+        <button class="button">Upload Logs <input type="file" id="file" name="file"/></button>
+        <button id="download-json-logs" class="button" onclick="fitts.downloadJsonLogs()">Download Raw Json Logs</button>
+        <button id="download-csv-logs" class="button" onclick="fitts.downloadCsvRawLogs()">Download Raw CSV Logs</button>
+
+        <!-- <div class="g-signin2" data-width="300" data-height="200" data-longtitle="true" data-onsuccess="onSignIn">
         <button id="signin-button" class="button" onclick="handleSignInClick()">Sign In to Google</button>
-        <button id="signout-button" class="button" onclick="handleSignOutClick()">Sign Out from Google</button>
+        <button id="signout-button" class="button" onclick="handleSignOutClick()">Sign Out from Google</button> -->
 
       </div>
 

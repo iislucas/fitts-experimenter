@@ -55,6 +55,7 @@
 	const fitts_app = __webpack_require__(1);
 	const auth = __webpack_require__(695);
 	window.fitts = new fitts_app.App();
+	// For G+ signin, auth, and APIs
 	window.handleClientLoad = auth.handleClientLoad;
 	window.handleSignInClick = auth.handleSignInClick;
 	window.handleSignOutClick = auth.handleSignOutClick;
@@ -84,6 +85,8 @@
 	const experiment = __webpack_require__(6);
 	const params = __webpack_require__(518);
 	const trial = __webpack_require__(517);
+	const helpers = __webpack_require__(7);
+	const d3 = __webpack_require__(3);
 	const mathjs = __webpack_require__(8);
 	__webpack_require__(519);
 	const STORAGE_KEY_PARAMS = 'params';
@@ -95,11 +98,56 @@
 	const DOM_ID_LOGS = 'logs';
 	const DOM_ID_GRAPHS = 'graphs';
 	const DOM_ID_INFO = 'info';
+	const DOM_ID_TRIAL_PARAMS = 'trial-params';
 	class App {
 	    constructor() {
-	        this.trialParamsEl = document.getElementById('trial-params');
+	        this.trialParamsEl = document.getElementById(DOM_ID_TRIAL_PARAMS);
 	        this.domInfoEl = document.getElementById(DOM_ID_INFO);
+	        this.experiment = experiment;
 	        this.data = {};
+	        this.downloadJsonLogs = () => {
+	            let file = new File([JSON.stringify(experiment.logs)], 'fitts-app-' + helpers.dateStringOfTimestamp(Date.now()) + '.json', { type: 'text/json;charset=utf-8' });
+	            // let data = new Blob([experiment.textOfLogs()],
+	            //     { type: 'text/csv;charset=utf-8'});
+	            let url = URL.createObjectURL(file);
+	            window.open(url);
+	        };
+	        this.downloadCsvRawLogs = () => {
+	            let file = new File([experiment.rawCsvLogs()], 'fitts-app-' + helpers.dateStringOfTimestamp(Date.now()) + '.csv', { type: 'text/csv;charset=utf-8' });
+	            // let data = new Blob([experiment.textOfLogs()],
+	            //     { type: 'text/csv;charset=utf-8'});
+	            let url = URL.createObjectURL(file);
+	            window.open(url);
+	        };
+	        this.handleFileSelect = (evt) => {
+	            let files = evt.target.files; // FileList object
+	            // files is a FileList of File objects. List some properties.
+	            for (let f of files) {
+	                console.log(`name: ${f.name}; type: ${f.type}; size: ${f.size}, lastmodified: ${f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'unknown'}`);
+	                // Only process image files.
+	                if (!f.type.match('(csv|json)')) {
+	                    console.error('file must be csv of json');
+	                    continue;
+	                }
+	                var reader = new FileReader();
+	                // Closure to capture the file information.
+	                reader.onload = (e) => {
+	                    // Render thumbnail.
+	                    if (f.type.match('csv')) {
+	                        console.log('parseing csv');
+	                        let csv = d3.csvParse(e.target.result);
+	                        console.log(csv);
+	                    }
+	                    else if (f.type.match('json')) {
+	                        console.log('parseing json');
+	                        let json = JSON.parse(e.target.result);
+	                        console.log(json);
+	                    }
+	                };
+	                // Read in the image file as a data URL.
+	                reader.readAsText(f);
+	            }
+	        };
 	        console.log('loading!');
 	        let logsLoadedFromStorage = localStorage.getItem(STORAGE_KEY_LOGS);
 	        if (logsLoadedFromStorage != null) {
@@ -115,6 +163,8 @@
 	            trial_params = JSON.parse(trial_params_string);
 	        }
 	        this.trialParamsEl.value = JSON.stringify(trial_params, null, 2);
+	        document.getElementById('file')
+	            .addEventListener('change', this.handleFileSelect);
 	        this.removeInfoStuff();
 	    }
 	    removeInfoStuff() {
@@ -167,19 +217,22 @@
 	            textEl.textContent = 'Trial ' + trialLog.trialId + ':';
 	            graphsEl.appendChild(textEl);
 	            let stats = trial.stats(trialLog);
-	            this.addGraphForTrial(graphsEl, trialLog);
-	            d_t_avg_data.push({
-	                x: mathjs.mean(stats.ts),
-	                y: mathjs.mean(stats.ds),
-	            });
-	            dx_t_avg_data.push({
-	                x: mathjs.mean(stats.ts),
-	                y: mathjs.mean(stats.dxs),
-	            });
-	            dy_t_avg_data.push({
-	                x: mathjs.mean(stats.ts),
-	                y: mathjs.mean(stats.dys),
-	            });
+	            if (stats.ts.length > 0 && stats.ds.length > 0 && stats.dxs.length > 0 &&
+	                stats.dys.length > 0) {
+	                this.addGraphForTrial(graphsEl, trialLog);
+	                d_t_avg_data.push({
+	                    x: mathjs.mean(stats.ts),
+	                    y: mathjs.mean(stats.ds),
+	                });
+	                dx_t_avg_data.push({
+	                    x: mathjs.mean(stats.ts),
+	                    y: mathjs.mean(stats.dxs),
+	                });
+	                dy_t_avg_data.push({
+	                    x: mathjs.mean(stats.ts),
+	                    y: mathjs.mean(stats.dys),
+	                });
+	            }
 	        }
 	        new charts.Chart(400, 200, { 'dx': { data: dx_t_avg_data, fill: 'rgba(255, 0, 0, 0.5)', },
 	            'dy': { data: dy_t_avg_data, fill: 'rgba(0, 255, 0, 0.5)', },
@@ -206,14 +259,6 @@
 	    }
 	    showLogs() {
 	        this.removeInfoStuff();
-	        let data = new Blob([experiment.textOfLogs()]);
-	        let url = URL.createObjectURL(data);
-	        let downloadEl = document.createElement('a');
-	        downloadEl.setAttribute('download', 'logs.csv');
-	        downloadEl.setAttribute('type', 'text/csv');
-	        downloadEl.setAttribute('href', url);
-	        downloadEl.innerText = 'Download logs';
-	        this.domInfoEl.appendChild(downloadEl);
 	        let logsEl = document.createElement('div');
 	        logsEl.setAttribute('id', DOM_ID_LOGS);
 	        this.domInfoEl.appendChild(logsEl);
@@ -17520,6 +17565,28 @@
 	    return logStrings.join('\n');
 	}
 	exports.textOfLogs = textOfLogs;
+	function csvLogsOfTrial(trialLog) {
+	    let trialLogStrings = [];
+	    trialLogStrings = trialLogStrings.concat(trialLog.events.map((eventLog) => {
+	        let dateString = helpers_1.dateStringOfTimestamp(eventLog.timestamp);
+	        return `trial-${trialLog.trialId}, ` +
+	            `${eventLog.circleClickedOn}, ${eventLog.x}, ${eventLog.y}, ` +
+	            `${eventLog.distanceToCenter}, ` +
+	            `${eventLog.dx.toFixed(2)}, ${eventLog.dy.toFixed(2)}, ` +
+	            `${eventLog.timeSinceLastClick}`;
+	    }));
+	    return trialLogStrings.join('\n');
+	}
+	exports.csvLogsOfTrial = csvLogsOfTrial;
+	function rawCsvLogs() {
+	    // First line is the CSV headers.
+	    let logStrings = [
+	        'trialId,circleClickedOn,x,y,distanceToCenter,dx,dy,timeSinceLastClick',
+	    ];
+	    logStrings = logStrings.concat(exports.logs.map(csvLogsOfTrial));
+	    return logStrings.join('\n');
+	}
+	exports.rawCsvLogs = rawCsvLogs;
 	function beep(time) {
 	    // create Oscillator node
 	    let oscillator = audioCtx.createOscillator();
