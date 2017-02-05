@@ -110,6 +110,30 @@ export function textOfLogs(): string {
   return logStrings.join('\n');
 }
 
+export function csvLogsOfTrial(trialLog:trial.Log) {
+  let trialLogStrings: string[] = [];
+  trialLogStrings = trialLogStrings.concat(
+      trialLog.events.map((eventLog: trial.Event) => {
+        let dateString = dateStringOfTimestamp(eventLog.timestamp);
+        return `trial-${trialLog.trialId}, ` +
+          `${eventLog.circleClickedOn}, ${eventLog.x}, ${eventLog.y}, ` +
+          `${eventLog.distanceToCenter}, ` +
+          `${eventLog.dx.toFixed(2)}, ${eventLog.dy.toFixed(2)}, ` +
+          `${eventLog.timeSinceLastClick}`;
+  }));
+  return trialLogStrings.join('\n');
+}
+
+export function rawCsvLogs(): string {
+  // First line is the CSV headers.
+  let logStrings : string[] = [
+    'trialId,circleClickedOn,x,y,distanceToCenter,dx,dy,timeSinceLastClick',
+  ];
+  logStrings = logStrings.concat(logs.map(csvLogsOfTrial));
+  return logStrings.join('\n');
+}
+
+
 function beep(time:number) {
   // create Oscillator node
   let oscillator = audioCtx.createOscillator();

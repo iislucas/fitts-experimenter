@@ -15,14 +15,16 @@ declare namespace window {
   let handleClientLoad : () => void;
   let handleSignInClick : (e:Event) => void;
   let handleSignOutClick : (e:Event) => void;
+  // For debugging gapi
   let xgapi : any;
 }
 window.fitts = new fitts_app.App();
+
+// For G+ signin, auth, and APIs
 window.handleClientLoad = auth.handleClientLoad;
 window.handleSignInClick = auth.handleSignInClick;
 window.handleSignOutClick = auth.handleSignOutClick;
 window.xgapi = auth.xgapi;
-
 let script = document.createElement("script");
 // This script has a callback function that will run when the script has
 // finished loading.

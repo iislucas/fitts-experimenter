@@ -10,7 +10,8 @@ import * as charts from './charts';
 import * as experiment from './experiment';
 import * as params from './params';
 import * as trial from './trial';
-
+import * as helpers from './helpers';
+import * as d3 from 'd3';
 import * as mathjs from 'mathjs';
 
 import 'pixi.js';
@@ -24,12 +25,15 @@ const DOM_ID_TRIAL = 'trial';
 const DOM_ID_LOGS = 'logs';
 const DOM_ID_GRAPHS = 'graphs';
 const DOM_ID_INFO = 'info';
+const DOM_ID_TRIAL_PARAMS = 'trial-params';
 
 export class App {
   private trialParamsEl: HTMLTextAreaElement =
-    (document.getElementById('trial-params') as any);
+    (document.getElementById(DOM_ID_TRIAL_PARAMS) as any);
 
   private domInfoEl: HTMLElement = document.getElementById(DOM_ID_INFO);
+
+  public experiment = experiment;
 
   public data: {
       currentTrial?: experiment.Trial
@@ -51,6 +55,9 @@ export class App {
       trial_params = JSON.parse(trial_params_string);
     }
     this.trialParamsEl.value = JSON.stringify(trial_params, null, 2);
+
+    document.getElementById('file')
+            .addEventListener('change', this.handleFileSelect);
 
     this.removeInfoStuff();
   }
@@ -109,7 +116,7 @@ export class App {
     graphsEl.setAttribute('id', DOM_ID_GRAPHS);
     this.domInfoEl.appendChild(graphsEl);
 
-    for(let trialLog of experiment.logs) {
+    for (let trialLog of experiment.logs) {
       let graphEl = document.createElement('div');
       graphsEl.appendChild(graphEl);
 
@@ -119,19 +126,22 @@ export class App {
       graphsEl.appendChild(textEl);
 
       let stats = trial.stats(trialLog);
-      this.addGraphForTrial(graphsEl, trialLog);
-      d_t_avg_data.push({
-            x: mathjs.mean(stats.ts),
-            y: mathjs.mean(stats.ds),
-          });
-      dx_t_avg_data.push({
-            x: mathjs.mean(stats.ts),
-            y: mathjs.mean(stats.dxs),
-          });
-      dy_t_avg_data.push({
-            x: mathjs.mean(stats.ts),
-            y: mathjs.mean(stats.dys),
-          });
+      if (stats.ts.length > 0 && stats.ds.length > 0 && stats.dxs.length > 0 &&
+          stats.dys.length > 0) {
+        this.addGraphForTrial(graphsEl, trialLog);
+        d_t_avg_data.push({
+              x: mathjs.mean(stats.ts),
+              y: mathjs.mean(stats.ds),
+            });
+        dx_t_avg_data.push({
+              x: mathjs.mean(stats.ts),
+              y: mathjs.mean(stats.dxs),
+            });
+        dy_t_avg_data.push({
+              x: mathjs.mean(stats.ts),
+              y: mathjs.mean(stats.dys),
+            });
+      }
     }
 
     new charts.Chart(
@@ -165,18 +175,9 @@ export class App {
     });
   }
 
+
   showLogs() {
     this.removeInfoStuff();
-
-    let data = new Blob([experiment.textOfLogs()]);
-    let url = URL.createObjectURL(data);
-
-    let downloadEl = document.createElement('a');
-    downloadEl.setAttribute('download', 'logs.csv');
-    downloadEl.setAttribute('type', 'text/csv');
-    downloadEl.setAttribute('href', url);
-    downloadEl.innerText = 'Download logs';
-    this.domInfoEl.appendChild(downloadEl);
 
     let logsEl = document.createElement('div');
     logsEl.setAttribute('id', DOM_ID_LOGS);
@@ -196,4 +197,60 @@ export class App {
     this.removeInfoStuff();
   }
 
+  public downloadJsonLogs = () : void => {
+    let file = new File(
+      [JSON.stringify(experiment.logs)],
+      'fitts-app-' + helpers.dateStringOfTimestamp(Date.now()) + '.json',
+      { type: 'text/json;charset=utf-8'}
+    );
+    // let data = new Blob([experiment.textOfLogs()],
+    //     { type: 'text/csv;charset=utf-8'});
+    let url = URL.createObjectURL(file);
+    window.open(url);
+  }
+
+  public downloadCsvRawLogs = () : void => {
+    let file = new File(
+      [experiment.rawCsvLogs()],
+      'fitts-app-' + helpers.dateStringOfTimestamp(Date.now()) + '.csv',
+      { type: 'text/csv;charset=utf-8'}
+    );
+    // let data = new Blob([experiment.textOfLogs()],
+    //     { type: 'text/csv;charset=utf-8'});
+    let url = URL.createObjectURL(file);
+    window.open(url);
+  }
+
+  public handleFileSelect = (evt:Event) : void => {
+    let files = (evt.target as any).files; // FileList object
+    // files is a FileList of File objects. List some properties.
+    for (let f of files) {
+      console.log(`name: ${f.name}; type: ${f.type}; size: ${f.size}, lastmodified: ${f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'unknown'}`);
+
+      // Only process image files.
+      if (!f.type.match('(csv|json)')) {
+        console.error('file must be csv of json');
+        continue;
+      }
+
+      var reader = new FileReader();
+
+      // Closure to capture the file information.
+      reader.onload = (e:Event) => {
+        // Render thumbnail.
+        if (f.type.match('csv')) {
+          console.log('parseing csv');
+          let csv = d3.csvParse((e.target as FileReader).result);
+          console.log(csv);
+        } else if (f.type.match('json')) {
+          console.log('parseing json');
+          let json = JSON.parse((e.target as FileReader).result);
+          console.log(json);
+        }
+      };
+
+      // Read in the image file as a data URL.
+      reader.readAsText(f);
+    }
+  }
 }
