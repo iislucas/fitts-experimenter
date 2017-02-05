@@ -201,7 +201,7 @@ export class App {
     let file = new File(
       [JSON.stringify(experiment.logs)],
       'fitts-app-' + helpers.dateStringOfTimestamp(Date.now()) + '.json',
-      { type: 'text/json;charset=utf-8'}
+      { type: 'application/octet-stream;charset=utf-8'}
     );
     // let data = new Blob([experiment.textOfLogs()],
     //     { type: 'text/csv;charset=utf-8'});
