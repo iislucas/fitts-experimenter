@@ -124,7 +124,7 @@ export function csvTrialLogs() {
         'both_nevents','both_mt_mean','both_mt_std',
         'both_eff_dwidth','both_eff_xwidth','both_eff_ywidth',
         'both_ds_mean','both_ds_std',
-        'both_dxs_mean','both_dys_std',
+        'both_dxs_mean','both_dxs_std',
         'both_dys_mean','both_dys_std',
         'c1_nevents','c1_mt_mean','c1_mt_std',
         'c1_eff_dwidth','c1_eff_xwidth','c1_eff_ywidth',

@@ -89,6 +89,18 @@ function takeFirstPercentile<T>(ns: T[], percentile:number) : T[] {
   return selected;
 }
 
+// Returns indexes to keep.
+function removeOutlers<T>(ns: T[], f:(n:T) => number, percentile:number)
+    : T[] {
+  let indexed_ns = ns.map((n,i) => { return { n:n, i:i } });
+
+  let selected_ns = takeFirstPercentile(
+    indexed_ns.sort((n1,n2) => { return f(n1.n) - f(n2.n); }),
+    percentile);
+
+  return selected_ns.map((indexed_n) => { return indexed_n.n; });
+}
+
 function mean(xs:number[]) : number {
   if (xs.length === 0) {
     return 0;
@@ -112,12 +124,9 @@ export function stats(trialLog: Log, targetName?:string) : TargetStats {
         (e) => { return e.circleClickedOn === targetName; });
   }
 
-  let ds = realEvents.map((e) => { return e.distanceToCenter; });
-  let dxs = realEvents.map((e) => { return e.dx; });
-  let dys = realEvents.map((e) => { return e.dy; });
   let absdxs = realEvents.map((e) => { return Math.abs(e.dx); });
   let absdys = realEvents.map((e) => { return Math.abs(e.dy); });
-  let ts = realEvents.map((e) => { return e.timeSinceLastClick; });
+  let ds = realEvents.map((e) => { return e.distanceToCenter; });
 
   let xWidth = takeFirstPercentile(absdxs.sort((n,m) => { return n - m; }),
                                    0.95).pop();
@@ -125,6 +134,19 @@ export function stats(trialLog: Log, targetName?:string) : TargetStats {
                                    0.95).pop();
   let width = takeFirstPercentile(ds.sort((n,m) => { return n - m; }),
                                    0.95).pop();
+
+  // Removes points with 95%
+  realEvents = removeOutlers(realEvents,
+      (n:Event) => { return n.distanceToCenter; }, 0.95);
+
+  let dxs = realEvents.map((e) => { return e.dx; });
+  let dys = realEvents.map((e) => { return e.dy; });
+  ds = realEvents.map((e) => { return e.distanceToCenter; });
+  absdxs = realEvents.map((e) => { return Math.abs(e.dx); });
+  absdys = realEvents.map((e) => { return Math.abs(e.dy); });
+
+  let ts = realEvents.map((e) => { return e.timeSinceLastClick; });
+
 
   let values = {
     ts: ts,
@@ -158,8 +180,6 @@ export function stats(trialLog: Log, targetName?:string) : TargetStats {
     summary: summary,
   };
 }
-
-
 
 
 export function RealEvents(trialLog: Log) {
