@@ -6,8 +6,18 @@
  * found in the LICENSE file
  */
 
+export interface MovingCirclePosition {
+
+}
+
 export interface Circle {
-  orbit_distance: number, // orbit distance.
+  // When true, the new position is calculated when a tap event happens.
+  // When false, the new position is calculated only when the other circle
+  // is tapped.
+  lookahead: boolean;
+  // A set of distances to randomly select between.
+  orbit_distances: number[],
+  orbit_distance: number,
   speed: number, // speed (in degrees / 60th of a second)
   init_angle: number,  // initial angle (in degrees)
   radius: number,  // radius
@@ -19,14 +29,18 @@ export interface Experiment {
   circle1: Circle;
   circle2: Circle;
   // Length of the trial in seconds.
-  durationSeconds: number;
+  durationSeconds ?: number;
+  // Length of the trial in tap-events.
+  durationTaps ?: number;
   // When calculating stats, skip the first N taps.
   skipFirstNTaps: number;
 };
 
 export const CIRCLE1_NAME : string = 'c1';
-let circle1_params = {
-  orbit_distance: 200, // orbit distance.
+let circle1_params : Circle = {
+  lookahead: true,
+  orbit_distances: [200], // orbit distance.
+  orbit_distance: 200,
   speed: 0, // speed (in degrees / 60th of a second)
   init_angle: 0,  // initial angle (in degrees)
   radius: 5,  // radius
@@ -34,8 +48,10 @@ let circle1_params = {
 };
 
 export const CIRCLE2_NAME : string = 'c2';
-let circle2_params = {
-  orbit_distance: 200, // orbit distance.
+let circle2_params : Circle = {
+  lookahead: true,
+  orbit_distances: [200], // orbit distance.
+  orbit_distance: 200,
   speed: 0, // speed (in degrees / 60th of a second)
   init_angle: 180,  // initial angle (in degrees)
   radius: 5,  // radius

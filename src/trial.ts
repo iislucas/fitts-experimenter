@@ -147,7 +147,6 @@ export function stats(trialLog: Log, targetName?:string) : TargetStats {
 
   let ts = realEvents.map((e) => { return e.timeSinceLastClick; });
 
-
   let values = {
     ts: ts,
     dxs: dxs,

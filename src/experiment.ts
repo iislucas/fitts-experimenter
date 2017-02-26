@@ -90,16 +90,26 @@ function calcOrientation(trialLog:trial.Log) : string {
     return orientation;
 }
 
+function setRandomOrbitDistance(c: params.Circle) : void {
+  if(!c.orbit_distances) {
+    return;
+  }
+  c.orbit_distance = mathjs.pickRandom(c.orbit_distances);
+}
+
 function calcInitDistance(trialLog:trial.Log) : number {
   let p = trialLog.params;
+
   let x1 = Math.cos(helpers.toRadians(p.circle1.init_angle))
-          * p.circle1.orbit_distance;
+           * p.circle1.orbit_distance;
   let y1 = Math.sin(helpers.toRadians(p.circle1.init_angle))
-          * p.circle1.orbit_distance;
+           * p.circle1.orbit_distance;
+
   let x2 = Math.cos(helpers.toRadians(p.circle2.init_angle))
-          * p.circle2.orbit_distance;
+           * p.circle2.orbit_distance;
   let y2 = Math.sin(helpers.toRadians(p.circle2.init_angle))
-          * p.circle2.orbit_distance;
+           * p.circle2.orbit_distance;
+
   return Math.sqrt(Math.pow((x1 - x2),2) + Math.pow((y1 - y2),2));
 }
 
@@ -255,8 +265,10 @@ export class Trial {
       }
 
       this.env.updateFunctions.push((deltaTime) => {
-        this.timingText.text = 'Expriment time: ' + (Date.now() - this.startTime);
-        if (Date.now() - this.startTime > this.trialParams.durationSeconds * 1000) {
+        this.timingText.text = 'Expriment time: ' +
+                                 (Date.now() - this.startTime);
+        // Stop when trial time or
+        if (this.trialTimePassed() || this.trialTapsPassed()) {
           this.stop();
         }
       });
@@ -309,22 +321,22 @@ export class Trial {
     this.orbitingCircle1 = new OrbitingCircleSprite(
       this.env,
       centerCircle.getCenterPosition(), // orbit center.
-      trialParams.circle1.orbit_distance, // orbit distance.
-      trialParams.circle1.speed, // speed (in degrees / 60th of a second)
-      trialParams.circle1.init_angle,  // initial angle (in degrees)
-      trialParams.circle1.radius,  // radius
-      parseInt(trialParams.circle1.color) //color
+      this.trialParams.circle1.orbit_distance, // orbit distance.
+      this.trialParams.circle1.speed, // speed (in degrees / 60th of a second)
+      this.trialParams.circle1.init_angle,  // initial angle (in degrees)
+      this.trialParams.circle1.radius,  // radius
+      parseInt(this.trialParams.circle1.color) //color
     );
 
     this.orbitingCircle2 = new OrbitingCircleSprite(
       this.env,
       centerCircle.getCenterPosition(),
       // orbitingCircle1.circleSprite.getCenterPosition(), // orbit center.
-      trialParams.circle2.orbit_distance, // orbit distance.
-      trialParams.circle2.speed, // speed (in degrees / 60th of a second)
-      trialParams.circle2.init_angle,  // initial angle (in degrees)
-      trialParams.circle2.radius,  // radius
-      parseInt(trialParams.circle2.color) //color
+      this.trialParams.circle2.orbit_distance, // orbit distance.
+      this.trialParams.circle2.speed, // speed (in degrees / 60th of a second)
+      this.trialParams.circle2.init_angle,  // initial angle (in degrees)
+      this.trialParams.circle2.radius,  // radius
+      parseInt(this.trialParams.circle2.color) //color
     );
 
     let dx = this.orbitingCircle1.circleSprite.getCenterPosition().x -
@@ -335,7 +347,20 @@ export class Trial {
     console.log(' Distance between 2 circles: ' + d);
   }
 
+  public trialTimePassed() : boolean {
+    if (!this.trialParams.durationSeconds) {
+      return false;
+    }
+    return (Date.now() - this.startTime >
+                this.trialParams.durationSeconds * 1000);
+  }
 
+  public trialTapsPassed() : boolean {
+    if (!this.trialParams.durationTaps) {
+      return false;
+    }
+    return (this.trialLog.events.length >= this.trialParams.durationTaps);
+  }
 
   // todo: use tap position of event: mouse pos is not tap pos on touchscreen windows/chrome.
   public handleTap = () => {
@@ -359,11 +384,43 @@ export class Trial {
       accuracy = d1;
       dx = this.env.mousePosition.x - c1.x;
       dy = this.env.mousePosition.y - c1.y;
+
+      if (this.trialParams.circle1.lookahead) {
+        this.orbitingCircle1.circleSprite.sprite.visible = true;
+        setRandomOrbitDistance(this.trialParams.circle1);
+        this.orbitingCircle1.orbitDistance =
+            this.trialParams.circle1.orbit_distance;
+      } else {
+        this.orbitingCircle1.circleSprite.sprite.visible = false;
+      }
+
+      if (!this.trialParams.circle2.lookahead) {
+        setRandomOrbitDistance(this.trialParams.circle2);
+        this.orbitingCircle2.orbitDistance =
+            this.trialParams.circle1.orbit_distance;
+        this.orbitingCircle2.circleSprite.sprite.visible = true;
+      }
     } else {
       circleName = params.CIRCLE2_NAME;
       accuracy = d2;
       dx = this.env.mousePosition.x - c2.x;
       dy = this.env.mousePosition.y - c2.y;
+
+      if (this.trialParams.circle2.lookahead) {
+        this.orbitingCircle2.circleSprite.sprite.visible = true;
+        setRandomOrbitDistance(this.trialParams.circle2);
+        this.orbitingCircle2.orbitDistance =
+            this.trialParams.circle2.orbit_distance;
+      } else {
+        this.orbitingCircle2.circleSprite.sprite.visible = false;
+      }
+
+      if (!this.trialParams.circle1.lookahead) {
+        setRandomOrbitDistance(this.trialParams.circle1);
+        this.orbitingCircle1.orbitDistance =
+            this.trialParams.circle1.orbit_distance;
+        this.orbitingCircle1.circleSprite.sprite.visible = true;
+      }
     }
 
     let eventLog: trial.Event = {
