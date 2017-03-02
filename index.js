@@ -17535,15 +17535,15 @@
 	        trialLogStrings.push(`-- Stats for all targets--`);
 	        let allEventStats = trial.stats(trialLog);
 	        trialLogStrings =
-	            trialLogStrings.concat([JSON.stringify(allEventStats.summary)]);
+	            trialLogStrings.concat([JSON.stringify(allEventStats.summary, null, 2)]);
 	        trialLogStrings.push(`-- Stats for ${params.CIRCLE1_NAME} --`);
 	        let c1EventStats = trial.stats(trialLog, params.CIRCLE1_NAME);
 	        trialLogStrings =
-	            trialLogStrings.concat([JSON.stringify(c1EventStats.summary)]);
+	            trialLogStrings.concat([JSON.stringify(c1EventStats.summary, null, 2)]);
 	        trialLogStrings.push(`-- Stats for ${params.CIRCLE2_NAME} --`);
 	        let c2EventStats = trial.stats(trialLog, params.CIRCLE2_NAME);
 	        trialLogStrings =
-	            trialLogStrings.concat([JSON.stringify(c2EventStats.summary)]);
+	            trialLogStrings.concat([JSON.stringify(c2EventStats.summary, null, 2)]);
 	        trialLogStrings.push(`-----------------------------------------`);
 	        return trialLogStrings.join('\n');
 	    });
@@ -17562,22 +17562,17 @@
 	    }
 	    return orientation;
 	}
-	function setRandomOrbitDistance(c) {
-	    if (!c.orbit_distances) {
-	        return;
-	    }
-	    c.orbit_distance = mathjs.pickRandom(c.orbit_distances);
+	function pickRandomOrbitDistance(c) {
+	    return mathjs.pickRandom(c.orbit_distances);
 	}
 	function calcInitDistance(trialLog) {
 	    let p = trialLog.params;
-	    let x1 = Math.cos(helpers.toRadians(p.circle1.init_angle))
-	        * p.circle1.orbit_distance;
-	    let y1 = Math.sin(helpers.toRadians(p.circle1.init_angle))
-	        * p.circle1.orbit_distance;
-	    let x2 = Math.cos(helpers.toRadians(p.circle2.init_angle))
-	        * p.circle2.orbit_distance;
-	    let y2 = Math.sin(helpers.toRadians(p.circle2.init_angle))
-	        * p.circle2.orbit_distance;
+	    let d1 = pickRandomOrbitDistance(p.circle1);
+	    let x1 = Math.cos(helpers.toRadians(p.circle1.init_angle)) * d1;
+	    let y1 = Math.sin(helpers.toRadians(p.circle1.init_angle)) * d1;
+	    let d2 = pickRandomOrbitDistance(p.circle2);
+	    let x2 = Math.cos(helpers.toRadians(p.circle2.init_angle)) * d2;
+	    let y2 = Math.sin(helpers.toRadians(p.circle2.init_angle)) * d2;
 	    return Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
 	}
 	function numbersOfSummary(summary) {
@@ -17636,7 +17631,7 @@
 	    trialLogStrings = trialLogStrings.concat(trialLog.events.map((eventLog) => {
 	        let dateString = helpers_1.dateStringOfTimestamp(eventLog.timestamp);
 	        return `trial-${trialLog.trialId}, ` +
-	            `${eventLog.circleClickedOn}, ${eventLog.x}, ${eventLog.y}, ` +
+	            `${eventLog.circleClickedOn}, ${eventLog.circleClickedPos[0]}, ${eventLog.circleClickedPos[1]}, ${eventLog.x}, ${eventLog.y}, ` +
 	            `${eventLog.distanceToCenter}, ` +
 	            `${eventLog.dx.toFixed(2)}, ${eventLog.dy.toFixed(2)}, ` +
 	            `${eventLog.timeSinceLastClick}`;
@@ -17647,7 +17642,8 @@
 	function csvRawLogs() {
 	    // First line is the CSV headers.
 	    let logStrings = [
-	        'trialId,circleClickedOn,x,y,distanceToCenter,dx,dy,timeSinceLastClick',
+	        'trialId,circleClickedOn,circleClickedOnX,circleClickedOnY,' +
+	            'x,y,distanceToCenter,dx,dy,timeSinceLastClick',
 	    ];
 	    logStrings = logStrings.concat(exports.logs.map(csvRawLogsOfTrial));
 	    return logStrings.join('\n');
@@ -17712,51 +17708,52 @@
 	            let circleName;
 	            let dx;
 	            let dy;
+	            // [x,y] pos of circle clicked on.
+	            let circleClickedPos;
 	            if (d1 < d2) {
 	                circleName = params.CIRCLE1_NAME;
+	                circleClickedPos = [c1.x, c1.y];
 	                accuracy = d1;
 	                dx = this.env.mousePosition.x - c1.x;
 	                dy = this.env.mousePosition.y - c1.y;
 	                if (this.trialParams.circle1.lookahead) {
 	                    this.orbitingCircle1.circleSprite.sprite.visible = true;
-	                    setRandomOrbitDistance(this.trialParams.circle1);
 	                    this.orbitingCircle1.orbitDistance =
-	                        this.trialParams.circle1.orbit_distance;
+	                        pickRandomOrbitDistance(this.trialParams.circle1);
 	                }
 	                else {
 	                    this.orbitingCircle1.circleSprite.sprite.visible = false;
 	                }
 	                if (!this.trialParams.circle2.lookahead) {
-	                    setRandomOrbitDistance(this.trialParams.circle2);
 	                    this.orbitingCircle2.orbitDistance =
-	                        this.trialParams.circle1.orbit_distance;
+	                        pickRandomOrbitDistance(this.trialParams.circle2);
 	                    this.orbitingCircle2.circleSprite.sprite.visible = true;
 	                }
 	            }
 	            else {
 	                circleName = params.CIRCLE2_NAME;
+	                circleClickedPos = [c2.x, c2.y];
 	                accuracy = d2;
 	                dx = this.env.mousePosition.x - c2.x;
 	                dy = this.env.mousePosition.y - c2.y;
 	                if (this.trialParams.circle2.lookahead) {
 	                    this.orbitingCircle2.circleSprite.sprite.visible = true;
-	                    setRandomOrbitDistance(this.trialParams.circle2);
 	                    this.orbitingCircle2.orbitDistance =
-	                        this.trialParams.circle2.orbit_distance;
+	                        pickRandomOrbitDistance(this.trialParams.circle2);
 	                }
 	                else {
 	                    this.orbitingCircle2.circleSprite.sprite.visible = false;
 	                }
 	                if (!this.trialParams.circle1.lookahead) {
-	                    setRandomOrbitDistance(this.trialParams.circle1);
 	                    this.orbitingCircle1.orbitDistance =
-	                        this.trialParams.circle1.orbit_distance;
+	                        pickRandomOrbitDistance(this.trialParams.circle1);
 	                    this.orbitingCircle1.circleSprite.sprite.visible = true;
 	                }
 	            }
 	            let eventLog = {
 	                timestamp: this.lastclicktime,
 	                circleClickedOn: circleName,
+	                circleClickedPos: circleClickedPos,
 	                distanceToCenter: accuracy,
 	                timeSinceLastClick: timeDiff,
 	                dx: dx,
@@ -17816,7 +17813,7 @@
 	        0x000000 //color
 	        );
 	        this.orbitingCircle1 = new helpers_1.OrbitingCircleSprite(this.env, centerCircle.getCenterPosition(), // orbit center.
-	        this.trialParams.circle1.orbit_distance, // orbit distance.
+	        pickRandomOrbitDistance(this.trialParams.circle1), // orbit distance.
 	        this.trialParams.circle1.speed, // speed (in degrees / 60th of a second)
 	        this.trialParams.circle1.init_angle, // initial angle (in degrees)
 	        this.trialParams.circle1.radius, // radius
@@ -17824,7 +17821,7 @@
 	        );
 	        this.orbitingCircle2 = new helpers_1.OrbitingCircleSprite(this.env, centerCircle.getCenterPosition(), 
 	        // orbitingCircle1.circleSprite.getCenterPosition(), // orbit center.
-	        this.trialParams.circle2.orbit_distance, // orbit distance.
+	        pickRandomOrbitDistance(this.trialParams.circle2), // orbit distance.
 	        this.trialParams.circle2.speed, // speed (in degrees / 60th of a second)
 	        this.trialParams.circle2.init_angle, // initial angle (in degrees)
 	        this.trialParams.circle2.radius, // radius
@@ -73470,7 +73467,6 @@
 	let circle1_params = {
 	    lookahead: true,
 	    orbit_distances: [200],
-	    orbit_distance: 200,
 	    speed: 0,
 	    init_angle: 0,
 	    radius: 5,
@@ -73480,7 +73476,6 @@
 	let circle2_params = {
 	    lookahead: true,
 	    orbit_distances: [200],
-	    orbit_distance: 200,
 	    speed: 0,
 	    init_angle: 180,
 	    radius: 5,
@@ -73490,7 +73485,8 @@
 	    circle1: circle1_params,
 	    circle2: circle2_params,
 	    skipFirstNTaps: 3,
-	    durationSeconds: 10,
+	    durationTaps: 60,
+	    durationSeconds: 120,
 	    bgcolor: '0x000000'
 	};
 

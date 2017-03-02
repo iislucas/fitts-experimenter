@@ -56,11 +56,14 @@
         padding: 5px;
         font-family: monospace;
         white-space: pre;
-        width: 400px;
-        height: 300px;
+        width: 600px;
+        height: 400px;
       }
       #pre-trial {
         margin:10px;
+      }
+      #runtrial-button {
+        font-size: 16pt;
       }
       h1 {
         margin: 0px;
@@ -104,12 +107,11 @@
       </p>
 
       <div id="actions">
-        <button id="runtrial-button" class="button" onclick="fitts.startTrial()">Start Trial</button>
         <button class="button" onclick="fitts.resetToDefaultParams()">Reset trial params</button>
         <button id="graphs-button" class="view-button" onclick="fitts.showGraphsForTrials()">Show Graphs</button>
         <button id="logs-button" class="view-button" onclick="fitts.showRawLogs()">Show Raw Logs</button>
         <button id="logs-button" class="view-button" onclick="fitts.showTrialLogs()">Show Trial Logs</button>
-        <button id="runtrial-button" class="button" onclick="fitts.clearLogs()">Delete all local data</button>
+        <button id="clearlogs-button" class="button" onclick="fitts.clearLogs()">Delete all local data</button>
 
         <button class="button">Upload Logs <input type="file" id="file" name="file"/></button>
         <button id="download-json-logs" class="button" onclick="fitts.downloadJsonLogs()">Download Raw Json Logs</button>
@@ -118,6 +120,8 @@
         <!-- <div class="g-signin2" data-width="300" data-height="200" data-longtitle="true" data-onsuccess="onSignIn">
         <button id="signin-button" class="button" onclick="handleSignInClick()">Sign In to Google</button>
         <button id="signout-button" class="button" onclick="handleSignOutClick()">Sign Out from Google</button> -->
+        <hr>
+        <button id="runtrial-button" class="button" onclick="fitts.startTrial()">Start Trial</button>
 
       </div>
 
