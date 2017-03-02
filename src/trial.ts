@@ -17,6 +17,7 @@ export interface ContactLog {
 export interface Event {
   timestamp: number;
   circleClickedOn: string;
+  circleClickedPos: [number,number];
   distanceToCenter: number;
   timeSinceLastClick: number;
   dx: number;
