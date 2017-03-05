@@ -26,6 +26,7 @@ const DOM_ID_LOGS = 'logs';
 const DOM_ID_GRAPHS = 'graphs';
 const DOM_ID_INFO = 'info';
 const DOM_ID_TRIAL_PARAMS = 'trial-params';
+const DOM_ID_DELETE_LOGS_DIV = 'really-delete-logs-div';
 
 export class App {
   private trialParamsEl: HTMLTextAreaElement =
@@ -201,11 +202,24 @@ export class App {
     this.trialParamsEl.value = JSON.stringify(trial_params, null, 2);
   }
 
-  clearLogs() {
+  public clearLogs() {
     experiment.clearLogs();
     localStorage.clear();
     this.removeInfoStuff();
+    let element = document.getElementById(DOM_ID_DELETE_LOGS_DIV);
+    element.hidden = true;
   }
+
+  public maybeClearLogs() {
+    let element = document.getElementById(DOM_ID_DELETE_LOGS_DIV);
+    element.hidden = false;
+  }
+
+  public dontClearLogs() {
+    let element = document.getElementById(DOM_ID_DELETE_LOGS_DIV);
+    element.hidden = true;
+  }
+
 
   public downloadJsonLogs = () : void => {
     let file = new File(
