@@ -99,6 +99,7 @@
 	const DOM_ID_GRAPHS = 'graphs';
 	const DOM_ID_INFO = 'info';
 	const DOM_ID_TRIAL_PARAMS = 'trial-params';
+	const DOM_ID_DELETE_LOGS_DIV = 'really-delete-logs-div';
 	class App {
 	    constructor() {
 	        this.trialParamsEl = document.getElementById(DOM_ID_TRIAL_PARAMS);
@@ -284,6 +285,16 @@
 	        experiment.clearLogs();
 	        localStorage.clear();
 	        this.removeInfoStuff();
+	        let element = document.getElementById(DOM_ID_DELETE_LOGS_DIV);
+	        element.hidden = true;
+	    }
+	    maybeClearLogs() {
+	        let element = document.getElementById(DOM_ID_DELETE_LOGS_DIV);
+	        element.hidden = false;
+	    }
+	    dontClearLogs() {
+	        let element = document.getElementById(DOM_ID_DELETE_LOGS_DIV);
+	        element.hidden = true;
 	    }
 	    save() {
 	        localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(experiment.logs));

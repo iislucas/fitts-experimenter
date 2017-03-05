@@ -69,6 +69,16 @@
         margin: 0px;
         font-size: 12pt;
       }
+      #really-clearlogs-button {
+        background: #F00;
+        color: #000;
+      }
+      #really-delete-logs-div {
+        border: 2px solid #FF0000;
+        padding: 10px;
+        width: 600px;
+        height: 400px;
+      }
     </style>
     <!-- <meta name="google-signin-client_id" content="1026298405002-4ablf8sti600mfvd2d8qsduhllvjvnue.apps.googleusercontent.com">
     <script>
@@ -111,7 +121,7 @@
         <button id="graphs-button" class="view-button" onclick="fitts.showGraphsForTrials()">Show Graphs</button>
         <button id="logs-button" class="view-button" onclick="fitts.showRawLogs()">Show Raw Logs</button>
         <button id="logs-button" class="view-button" onclick="fitts.showTrialLogs()">Show Trial Logs</button>
-        <button id="clearlogs-button" class="button" onclick="fitts.clearLogs()">Delete all local data</button>
+        <button id="clearlogs-button" class="button" onclick="fitts.maybeClearLogs()">Delete all local data</button>
 
         <button class="button">Upload Logs <input type="file" id="file" name="file"/></button>
         <button id="download-json-logs" class="button" onclick="fitts.downloadJsonLogs()">Download Raw Json Logs</button>
@@ -123,6 +133,12 @@
         <hr>
         <button id="runtrial-button" class="button" onclick="fitts.startTrial()">Start Trial</button>
 
+      </div>
+
+      <div id="really-delete-logs-div" hidden="true">
+        Really delele the logs??? You cannot undo this!
+        <br><button id="really-clearlogs-button" class="button" onclick="fitts.clearLogs()">Delete</button>
+        <br><button id="dont-clearlogs-button" class="button" onclick="fitts.dontClearLogs()">Don't do it!</button>
       </div>
 
       <div id="trial-settings">
