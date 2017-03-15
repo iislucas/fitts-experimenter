@@ -14,25 +14,26 @@
   },
   "license": "Apache-2.0",
   "author": "Lucas Dixon",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "@types/d3": "^4.3.0",
-    "@types/gapi": "^0.0.30",
-    "@types/gapi.auth2": "^0.0.32",
+    "@types/gapi": "^0.0.31",
+    "@types/gapi.auth2": "^0.0.35",
     "@types/google.picker": "^0.0.28",
-    "@types/mathjs": "^0.0.32",
+    "@types/mathjs": "^0.0.34",
     "@types/pixi.js": "^4.1.0",
     "@types/webpack": "^2.0.0",
     "d3": "^4.4.0",
     "favicons-webpack-plugin": "^0.0.7",
-    "file-loader": "^0.9.0",
+    "file-loader": "^0.10.1",
     "global": "^4.3.1",
     "html-loader": "^0.4.4",
     "html-webpack-plugin": "^2.24.1",
     "mathjs": "^3.8.1",
     "pixi.js": "^4.2.2",
-    "ts-loader": "^1.2.2",
-    "typescript": "^2.0.10",
-    "webpack": "^1.13.3",
-    "webpack-dev-server": "^1.14.1"
+    "ts-loader": "^2.0.1",
+    "typescript": "^2.2.1",
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.2"
   }
 }

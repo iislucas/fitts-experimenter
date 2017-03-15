@@ -11,11 +11,8 @@
     "outDir": "build/dev/"
   },
   "include": [
-    "src/**/*",
+    "src/**/*.ts",
     "build/typings/index.d.ts"
-  ],
-  "exclude": [
-    "node_modules"
   ],
   "formatCodeOptions": {
     "indentSize": 2,

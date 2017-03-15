@@ -5,8 +5,8 @@
  * Use of this source code is governed by the Apache2 license that can be
  * found in the LICENSE file
  */
-
-var webpack = require("webpack");
+var path = require('path');
+var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -17,29 +17,25 @@ module.exports = {
   devtool: 'source-map',
 
   resolve: {
-    extensions: ['', '.webpack.js', '.web.js', '.ts', '.js', 'mp3'],
+    extensions: ['.webpack.js', '.web.js', '.ts', '.js', 'mp3'],
   },
 
   module: {
     loaders: [
-      { test: /\.html$/, loader: 'html' },
+      { test: /\.html$/, loader: 'html-loader' },
       { test: /\.ts$/, loader: 'ts-loader' },
-      { test: /\.mp3$/, loader: 'file' },
+      { test: /\.mp3$/, loader: 'file-loader' },
     ],
   },
 
   output: {
     // The path to output built files to
-    path: 'build/dev',
+    path: path.resolve(__dirname, 'build/dev'),
     // The path these files expect to be at on the web-server
     publicPath: '',
     // How files are named
     filename: '[name].js',
     chunkFilename: '[id].chunk.js',
-  },
-
-  htmlLoader: {
-    minimize: false, // workaround for ng2
   },
 
   plugins: [
