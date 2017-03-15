@@ -7,12 +7,13 @@
  */
 
 import * as charts from './charts';
-import * as experiment from './experiment';
-import * as params from './params';
-import * as trial from './trial';
-import * as helpers from './helpers';
 import * as d3 from 'd3';
+import * as experiment from './experiment';
+import * as helpers from './helpers';
 import * as mathjs from 'mathjs';
+import * as params from './params';
+import * as taps_viz from './taps_viz';
+import * as trial from './trial';
 
 import 'pixi.js';
 
@@ -70,6 +71,41 @@ export class App {
     }
   }
 
+  addTapViz(parentEl: HTMLElement, trial: trial.Log, stats: trial.TargetStats) {
+    let tapPoints = trial.events.map((e:trial.Event) => {
+      return { x: e.dx, y: e.dy, circleClickedOn: e.circleClickedOn }
+    });
+  
+    new taps_viz.TapsViz({
+        name: 'all',
+        tapPoints: tapPoints, 
+        tapFill: 'rgba(255, 0, 0, 0.2)',
+        tapStroke: 'rgba(0, 0, 0, 0.2)',
+        effectiveWidth: stats.summary.eff_width,
+        effectiveWidthFill: 'rgba(0, 0, 0, 0.1)',
+        effectiveWidthStroke: 'rgba(0, 0, 0, 0.5)',
+      }, parentEl);
+
+    let targetsTapPoints : { [target:string]:{ x: number, y: number}[]; } = {}
+    for (let t of tapPoints) {
+      if(!(t.circleClickedOn in targetsTapPoints)) {
+        targetsTapPoints[t.circleClickedOn] = [];
+      }
+      targetsTapPoints[t.circleClickedOn].push(t);
+    }
+
+    for (let target of Object.keys(targetsTapPoints)) {
+      new taps_viz.TapsViz({
+        name: target,
+        tapPoints: targetsTapPoints[target], 
+        tapFill: 'rgba(255, 0, 0, 0.2)',
+        tapStroke: 'rgba(0, 0, 0, 0.2)',
+        effectiveWidth: stats.summary.eff_width,
+        effectiveWidthFill: 'rgba(0, 0, 0, 0.1)',
+        effectiveWidthStroke: 'rgba(0, 0, 0, 0.5)',
+      }, parentEl);
+    }
+  }
 
   addGraphForTrial(parentEl: HTMLElement, trial: trial.Log) {
     let data_dx = trial.events.map((e:trial.Event) => {
@@ -132,6 +168,7 @@ export class App {
           stats.data.dxs.length > 0 &&
           stats.data.dys.length > 0) {
         this.addGraphForTrial(graphsEl, trialLog);
+        this.addTapViz(graphsEl, trialLog, stats);
         d_t_avg_data.push({
               x: mathjs.mean(stats.data.ts),
               y: mathjs.mean(stats.data.ds),

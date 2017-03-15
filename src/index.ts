@@ -6,7 +6,7 @@
  * found in the LICENSE file
  */
 
-import * as fitts_app from './fitts-app';
+import * as fitts_app from './fitts_app';
 import * as auth from './auth';
 
 // For debugging & JS console-level interactions.
