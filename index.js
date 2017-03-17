@@ -40740,7 +40740,7 @@ class OrbitingCircleSprite {
 exports.OrbitingCircleSprite = OrbitingCircleSprite;
 function dateStringOfTimestamp(timestamp) {
     let date = new Date(timestamp);
-    return `${date.getFullYear()}-${date.getMonth()}-${date.getDay()}` +
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}` +
         `-${date.getHours()}.${date.getMinutes()}.${date.getSeconds()}.` +
         `${date.getMilliseconds()}`;
 }
