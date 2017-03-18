@@ -112325,6 +112325,17 @@ const params = __webpack_require__(240);
 const audioCtx = new AudioContext();
 exports.logs = [];
 function setLogs(new_logs) {
+    // Convert old single orbit_distance to new orbit distance format.
+    for (let trialLog of new_logs) {
+        if (trialLog.params.circle1.orbit_distance) {
+            trialLog.params.circle1.orbit_distances = [trialLog.params.circle1.orbit_distance];
+            console.log('updating circle1 orbit_distances from old format.');
+        }
+        if (trialLog.params.circle2.orbit_distance) {
+            trialLog.params.circle2.orbit_distances = [trialLog.params.circle2.orbit_distance];
+            console.log('updating circle2 orbit_distances from old format.');
+        }
+    }
     exports.logs = new_logs;
 }
 exports.setLogs = setLogs;
@@ -112389,16 +112400,18 @@ function calcOrientation(trialLog) {
 function pickRandomOrbitDistance(c) {
     return mathjs.pickRandom(c.orbit_distances);
 }
-// function calcInitDistance(trialLog:trial.Log) : number {
-//   let p = trialLog.params;
-//   let d1 = pickRandomOrbitDistance(p.circle1);
-//   let x1 = Math.cos(helpers.toRadians(p.circle1.init_angle)) * d1;
-//   let y1 = Math.sin(helpers.toRadians(p.circle1.init_angle)) * d1
-//   let d2 = pickRandomOrbitDistance(p.circle2);
-//   let x2 = Math.cos(helpers.toRadians(p.circle2.init_angle)) * d2;
-//   let y2 = Math.sin(helpers.toRadians(p.circle2.init_angle)) * d2;
-//   return Math.sqrt(Math.pow((x1 - x2),2) + Math.pow((y1 - y2),2));
-// }
+function initDistancesString(trialLog) {
+    return JSON.stringify({ c1: trialLog.params.circle1.orbit_distances,
+        c2: trialLog.params.circle2.orbit_distances }).replace(',', ';');
+    // let p = trialLog.params;
+    // let d1 = pickRandomOrbitDistance(p.circle1);
+    // let x1 = Math.cos(helpers.toRadians(p.circle1.init_angle)) * d1;
+    // let y1 = Math.sin(helpers.toRadians(p.circle1.init_angle)) * d1
+    // let d2 = pickRandomOrbitDistance(p.circle2);
+    // let x2 = Math.cos(helpers.toRadians(p.circle2.init_angle)) * d2;
+    // let y2 = Math.sin(helpers.toRadians(p.circle2.init_angle)) * d2;
+    // return Math.sqrt(Math.pow((x1 - x2),2) + Math.pow((y1 - y2),2));
+}
 function numbersOfSummary(summary) {
     return [`${summary.n}`,
         `${summary.mt_mean}`,
@@ -112415,7 +112428,7 @@ function numbersOfSummary(summary) {
 }
 function csvTrialLogs() {
     let strings = [
-        ['trialId', 'orientation', 'nEvents',
+        ['trialId', 'orientation', 'distance', 'nEvents',
             'both_nevents', 'both_mt_mean', 'both_mt_std',
             'both_eff_dwidth', 'both_eff_xwidth', 'both_eff_ywidth',
             'both_ds_mean', 'both_ds_std',
@@ -112437,6 +112450,7 @@ function csvTrialLogs() {
         let trialStrings = [];
         trialStrings.push(`${trialLog.trialId}`);
         trialStrings.push(`${calcOrientation(trialLog)}`);
+        trialStrings.push(`${initDistancesString(trialLog)}`);
         trialStrings.push(`${trialLog.events.length}`);
         let allEventStats = trial.stats(trialLog);
         trialStrings = trialStrings.concat(numbersOfSummary(allEventStats.summary));
