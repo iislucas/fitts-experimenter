@@ -94,19 +94,19 @@ function pickRandomOrbitDistance(c: params.Circle) : number {
   return mathjs.pickRandom(c.orbit_distances);
 }
 
-function calcInitDistance(trialLog:trial.Log) : number {
-  let p = trialLog.params;
+// function calcInitDistance(trialLog:trial.Log) : number {
+//   let p = trialLog.params;
 
-  let d1 = pickRandomOrbitDistance(p.circle1);
-  let x1 = Math.cos(helpers.toRadians(p.circle1.init_angle)) * d1;
-  let y1 = Math.sin(helpers.toRadians(p.circle1.init_angle)) * d1
+//   let d1 = pickRandomOrbitDistance(p.circle1);
+//   let x1 = Math.cos(helpers.toRadians(p.circle1.init_angle)) * d1;
+//   let y1 = Math.sin(helpers.toRadians(p.circle1.init_angle)) * d1
 
-  let d2 = pickRandomOrbitDistance(p.circle2);
-  let x2 = Math.cos(helpers.toRadians(p.circle2.init_angle)) * d2;
-  let y2 = Math.sin(helpers.toRadians(p.circle2.init_angle)) * d2;
+//   let d2 = pickRandomOrbitDistance(p.circle2);
+//   let x2 = Math.cos(helpers.toRadians(p.circle2.init_angle)) * d2;
+//   let y2 = Math.sin(helpers.toRadians(p.circle2.init_angle)) * d2;
 
-  return Math.sqrt(Math.pow((x1 - x2),2) + Math.pow((y1 - y2),2));
-}
+//   return Math.sqrt(Math.pow((x1 - x2),2) + Math.pow((y1 - y2),2));
+// }
 
 function numbersOfSummary(summary:trial.TargetStatsSummary) : string[] {
   return [`${summary.n}`,
@@ -125,7 +125,7 @@ function numbersOfSummary(summary:trial.TargetStatsSummary) : string[] {
 
 export function csvTrialLogs() {
   let strings : string[] = [
-      [ 'trialId','orientation','distance','nEvents',
+      [ 'trialId','orientation','nEvents',
         'both_nevents','both_mt_mean','both_mt_std',
         'both_eff_dwidth','both_eff_xwidth','both_eff_ywidth',
         'both_ds_mean','both_ds_std',
@@ -147,7 +147,6 @@ export function csvTrialLogs() {
     let trialStrings: string[] = [];
     trialStrings.push(`${trialLog.trialId}`);
     trialStrings.push(`${calcOrientation(trialLog)}`);
-    trialStrings.push(`${calcInitDistance(trialLog)}`);
     trialStrings.push(`${trialLog.events.length}`);
 
     let allEventStats = trial.stats(trialLog);
