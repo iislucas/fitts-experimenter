@@ -13,6 +13,7 @@ export interface Circle {
   lookahead: boolean;
   // A set of distances to randomly select between.
   orbit_distances: number[],
+  orbit_distance?: number, // depricated old distance format.
   speed: number, // speed (in degrees / 60th of a second)
   init_angle: number,  // initial angle (in degrees)
   radius: number,  // radius
