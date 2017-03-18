@@ -60529,21 +60529,27 @@ class App {
             // files is a FileList of File objects. List some properties.
             for (let f of files) {
                 console.log(`name: ${f.name}; type: ${f.type}; size: ${f.size}, lastmodified: ${f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'unknown'}`);
-                // Only process image files.
-                if (!f.type.match('(csv|json)')) {
-                    console.error('file must be csv of json');
-                    continue;
+                let filekind = 'unknown';
+                if (f.type.match('csv')) {
+                    filekind = 'csv';
+                }
+                else if (f.type.match('json')) {
+                    filekind = 'json';
+                }
+                else {
+                    console.warn('file must be csv or json; going to pretend it is json and see what happens...');
+                    filekind = 'json';
                 }
                 var reader = new FileReader();
                 // Closure to capture the file information.
                 reader.onload = (e) => {
                     // Render thumbnail.
-                    if (f.type.match('csv')) {
+                    if (filekind === 'csv') {
                         console.log('parseing csv');
                         let csv = d3.csvParse(e.target.result);
                         console.log(csv);
                     }
-                    else if (f.type.match('json')) {
+                    else if (filekind === 'json') {
                         console.log('parseing json');
                         let json = JSON.parse(e.target.result);
                         console.log(json);
