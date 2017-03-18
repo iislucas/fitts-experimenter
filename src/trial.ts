@@ -61,7 +61,12 @@ export interface TargetStatsData {
 }
 
 export interface TargetStatsSummary {
+  // The total number of events
   n: number;
+  // The number of selected events w.r.t. time (95% ile)
+  ts_n: number;
+  // The number of selected events w.r.t. distance (95% ile)
+  ds_n: number;
   mt_mean: number;
   mt_std: number;
   eff_width: number;
@@ -81,25 +86,31 @@ export interface TargetStats {
 }
 
 // Take the first |percentile| of elements.
-function takeFirstPercentile<T>(ns: T[], percentile:number) : T[] {
+function takeFirstPercentile<T>(ns: T[], percentile:number) : { selected:T[], dropped:T[] } {
   ns.length;
   let selected :T[] = [];
-  for (let i = 0; percentile >= (i / (ns.length - 1)) && i < ns.length; i++) {
+  let dropped :T[] = [];
+  let i:number = 0;
+  for (; percentile >= (i / (ns.length - 1)) && i < ns.length; i++) {
     selected.push(ns[i]);
   }
-  return selected;
+  for (; i < ns.length; i++) {
+    dropped.push(ns[i]);
+  }
+  return { selected: selected, dropped: dropped };
 }
 
 // Returns indexes to keep.
 function removeOutlers<T>(ns: T[], f:(n:T) => number, percentile:number)
-    : T[] {
+    : { selected: T[], dropped: T[] } {
   let indexed_ns = ns.map((n,i) => { return { n:n, i:i } });
 
   let selected_ns = takeFirstPercentile(
     indexed_ns.sort((n1,n2) => { return f(n1.n) - f(n2.n); }),
     percentile);
 
-  return selected_ns.map((indexed_n) => { return indexed_n.n; });
+  return { selected: selected_ns.selected.map((indexed_n) => { return indexed_n.n; }),
+           dropped: selected_ns.dropped.map((indexed_n) => { return indexed_n.n; }) };
 }
 
 function mean(xs:number[]) : number {
@@ -130,15 +141,22 @@ export function stats(trialLog: Log, targetName?:string) : TargetStats {
   let ds = realEvents.map((e) => { return e.distanceToCenter; });
 
   let xWidth = takeFirstPercentile(absdxs.sort((n,m) => { return n - m; }),
-                                   0.95).pop();
+                                   0.95).selected.pop();
   let yWidth = takeFirstPercentile(absdys.sort((n,m) => { return n - m; }),
-                                   0.95).pop();
+                                   0.95).selected.pop();
   let width = takeFirstPercentile(ds.sort((n,m) => { return n - m; }),
-                                   0.95).pop();
+                                   0.95).selected.pop();
 
   // Removes points with 95%
-  realEvents = removeOutlers(realEvents,
+  let selectedEvents = removeOutlers(realEvents,
       (n:Event) => { return n.distanceToCenter; }, 0.95);
+  realEvents = selectedEvents.selected;
+  // console.log('selected ds: ' + JSON.stringify(
+  //     selectedEvents.selected.map((e) => { return e.distanceToCenter; }), 
+  //     null, 2));
+  // console.log('dropped ds: ' + JSON.stringify(
+  //     selectedEvents.dropped.map((e) => { return e.distanceToCenter; }), 
+  //     null, 2));
 
   let dxs = realEvents.map((e) => { return e.dx; });
   let dys = realEvents.map((e) => { return e.dy; });
@@ -160,10 +178,17 @@ export function stats(trialLog: Log, targetName?:string) : TargetStats {
     width: width,
   };
 
+  let selected_ts = 
+      removeOutlers(values.ts, (n:number) => { return n; }, 0.95);
+  // console.log('selected ts: ' + JSON.stringify(selected_ts.selected, null, 2));
+  // console.log('dropped ts: ' + JSON.stringify(selected_ts.dropped, null, 2));
+
   let summary = {
     n: values.ts.length,
-    mt_mean: mean(values.ts),
-    mt_std: std(values.ts),
+    ts_n: selected_ts.selected.length,
+    ds_n: values.ds.length,
+    mt_mean: mean(selected_ts.selected),
+    mt_std: std(selected_ts.selected),
     eff_width: values.width,
     eff_xwidth: values.xWidth,
     eff_ywidth: values.yWidth,
