@@ -130,7 +130,10 @@ function std(xs:number[]) : number {
 }
 
 export function stats(trialLog: Log, targetName?:string) : TargetStats {
-  let realEvents = RealEvents(trialLog);
+  let realEvents = trialLog.events.slice(
+        5, // trialLog.params.skipFirstNTaps,
+        trialLog.events.length);
+
   if (targetName) {
     realEvents = realEvents.filter(
         (e) => { return e.circleClickedOn === targetName; });
@@ -205,21 +208,3 @@ export function stats(trialLog: Log, targetName?:string) : TargetStats {
     summary: summary,
   };
 }
-
-
-export function RealEvents(trialLog: Log) {
-    let events : Event[] = trialLog.events.slice(
-        trialLog.params.skipFirstNTaps, trialLog.events.length);
-    return events;
-}
-
-export function Mean(f: (e:Event) => number, trialLog: Log) {
-    let xs = RealEvents(trialLog).map<number>(f);
-    return mathjs.mean(xs);
-}
-
-export function Std(f: (e:Event) => number, trialLog: Log) {
-    let xs = RealEvents(trialLog).map<number>(f);
-    return mathjs.std(xs);
-}
-
