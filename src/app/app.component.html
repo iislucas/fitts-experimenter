@@ -50,11 +50,17 @@
               <div>
                 <div><b>{{i + 1}}</b>: {{ dateStringifyLog(log) }} (nevents: {{ log.events.length }})
                      [ {{ log.trialId }} ]
-                <md-input-container><input mdInput placeholder="Description"
-                    [(ngModel)]="log.description">
-                    </md-input-container></div>
-                <button md-raised-button>View</button>
-                <button md-raised-button (click)="removeOneTrial(i)">Delete</button>
+                </div>
+                <div>
+                  <md-input-container><input mdInput placeholder="Description"
+                      [(ngModel)]="log.description">
+                      </md-input-container>
+                  <md-input-container><input mdInput placeholder="Tags"
+                      [(ngModel)]="log.tags">
+                      </md-input-container>
+                  <button md-raised-button>View</button>
+                  <button md-raised-button (click)="removeOneTrial(i)">Delete</button>
+                </div>
               </div>
             </md-card>
 
