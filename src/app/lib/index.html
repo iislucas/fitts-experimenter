@@ -1,0 +1,152 @@
+<!--
+ @license
+ Copyright The Fitts-Expeiment-WebApp Authors. All Rights Reserved.
+
+ Use of this source code is governed by the Apache2 license that can be
+ found in the LICENSE file
+-->
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>A Fitts Experiment WebApp</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #FFFFFF;
+        font-family: Roboto, Sans;
+        font-size: 10pt;
+      }
+      .button {
+        border: 2px solid #888;
+        margin: 5px;
+        padding: 3px;
+        padding-left: 10px;
+        padding-right: 10px;
+        background: #ccc;
+        text-align: center;
+        font-size: 10pt;
+        font-family: Roboto, Sans;
+        display: inline-block
+      }
+      .view-button {
+        border: 2px solid #888;
+        margin: 5px;
+        padding: 3px;
+        padding-left: 10px;
+        padding-right: 10px;
+        background: #ccc;
+        text-align: center;
+        font-size: 10pt;
+        font-family: Roboto, Sans;
+        display: inline-block
+      }
+      #info {
+        border: 2px solid #cccccc;
+        padding: 5px;
+        margin: 5px;
+        font-family: monospace;
+        white-space: pre;
+      }
+      #trial-settings {
+        margin: 5px;
+      }
+      #trial-params {
+        border: 2px solid #cccccc;
+        padding: 5px;
+        font-family: monospace;
+        white-space: pre;
+        width: 600px;
+        height: 400px;
+      }
+      #pre-trial {
+        margin:10px;
+      }
+      #runtrial-button {
+        font-size: 16pt;
+      }
+      h1 {
+        margin: 0px;
+        font-size: 12pt;
+      }
+      #really-clearlogs-button {
+        background: #F00;
+        color: #000;
+      }
+      #really-delete-logs-div {
+        border: 2px solid #FF0000;
+        padding: 10px;
+        width: 600px;
+        height: 400px;
+      }
+    </style>
+    <!-- <meta name="google-signin-client_id" content="1026298405002-4ablf8sti600mfvd2d8qsduhllvjvnue.apps.googleusercontent.com">
+    <script>
+      function onSuccess(googleUser) {
+        console.log('Logged in as: ' + googleUser.getBasicProfile().getName());
+      }
+      function onFailure(error) {
+        console.log(error);
+      }
+      function renderButton() {
+        gapi.signin2.render('my-signin2', {
+          'scope': 'profile email',
+          'width': 240,
+          'height': 50,
+          'longtitle': true,
+          'theme': 'dark',
+          'onsuccess': onSuccess,
+          'onfailure': onFailure
+        });
+      }
+    </script>
+    <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>-->
+  </head>
+  <body>
+    <div id="trial"></div>
+
+    <div id="pre-trial">
+      <h1>A Fitts Experiment WebApp</h1>
+
+      <p>
+        This is a small open-source (static) webapp, hosted
+        <a href="https://www.github.com/iislucas/fitts-experimenter/">on github
+        as iislucas/fitts-experimenter</a> intended to support
+        <a href="https://en.wikipedia.org/wiki/Fitts's_law">Fitts-inspired
+        experiments</a>.
+      </p>
+
+      <div id="actions">
+        <button class="button" onclick="fitts.resetToDefaultParams()">Reset trial params</button>
+        <button id="graphs-button" class="view-button" onclick="fitts.showGraphsForTrials()">Show Graphs</button>
+        <button id="logs-button" class="view-button" onclick="fitts.showRawLogs()">Show Raw Logs</button>
+        <button id="logs-button" class="view-button" onclick="fitts.showTrialLogs()">Show Trial Logs</button>
+        <button id="clearlogs-button" class="button" onclick="fitts.maybeClearLogs()">Delete all local data</button>
+
+        <button class="button">Upload Logs <input type="file" id="file" name="file"/></button>
+        <button id="download-json-logs" class="button" onclick="fitts.downloadJsonLogs()">Download Raw Json Logs</button>
+        <button id="download-csv-logs" class="button" onclick="fitts.downloadCsvTrialLogs()">Download CSV Trial Logs</button>
+
+        <!-- <div class="g-signin2" data-width="300" data-height="200" data-longtitle="true" data-onsuccess="onSignIn">
+        <button id="signin-button" class="button" onclick="handleSignInClick()">Sign In to Google</button>
+        <button id="signout-button" class="button" onclick="handleSignOutClick()">Sign Out from Google</button> -->
+        <hr>
+        <button id="runtrial-button" class="button" onclick="fitts.startTrial()">Start Trial</button>
+
+      </div>
+
+      <div id="really-delete-logs-div" hidden="true">
+        Really delele the logs??? You cannot undo this!
+        <br><button id="really-clearlogs-button" class="button" onclick="fitts.clearLogs()">Delete</button>
+        <br><button id="dont-clearlogs-button" class="button" onclick="fitts.dontClearLogs()">Don't do it!</button>
+      </div>
+
+      <div id="trial-settings">
+        <div>Trial Params: <div>
+        <textarea id="trial-params"></textarea>
+      </div>
+
+      <div id="info"></div>
+    </div>
+  </body>
+</html>

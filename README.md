@@ -1,64 +1,28 @@
-# A Fitts Experiment WebApp
+# FittsExperimenterAngular
 
-This repository provides a webapp to experiment with
-[Fitts tasks](https://en.wikipedia.org/wiki/Fitts's_law). The github hosted
-(static) webapp is at: https://iislucas.github.com/fitts-experimenter
+This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.0.0-rc.4.
 
-## How is it built?
+## Development server
 
- * This project uses the [PixiJS](http://pixijs.github.io/docs/) library for
-   the animation and interaction, and [D3js](https://d3js.org/) for drawing
-   graphs.
- * It is written in [Typescript](http://www.typescriptlang.org/).
- * It uses [webpack](https://webpack.github.io/) for the bundling and local
-   serving.
- * It uses [HTML5 local storage](https://www.html5rocks.com/en/features/storage)
-   to store data locally in your browser.
- * The webapp is static (any static web-server will support hosting it).
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
-## Prerequisities
+## Code scaffolding
 
-```
-npm install -g yarn typescript webpack
-```
+Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive/pipe/service/class/module`.
 
-## Setup
+## Build
 
-```
-yarn install
-```
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `-prod` flag for a production build.
 
-## Building
+## Running unit tests
 
-```
-yarn run build
-```
+Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
-(Control-c to stop the watching build process)
+## Running end-to-end tests
 
-Development build (including sourcemaps) is put in `build/dev`
+Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+Before running the tests make sure you are serving the app via `ng serve`.
 
-## Testing/running
+## Further help
 
-```
-yarn run serve
-```
-
-This starts a simple express web-server running the code at http://localhost:8080/fitts-experiment/
-and watches the source code for changes and recompiles as needed.
-
-(Control-c to stop the server)
-
-## Cleaning up a build or instalation
-
-To create a totally fresh build, simply remove (or rename) the `build/dev`
-directory.
-
-To create a fresh install, remove the directories `node_modules` and the
-`build`.
-
-## Deployment to github pages
-
-```
-yarn run deploy
-```
+To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).

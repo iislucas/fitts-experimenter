@@ -34,6 +34,8 @@ export interface Log {
   events: Event[];
   // Times when the participants lost contact.
   contactEvents: ContactLog[];
+  description: string;
+  tags: string;
 }
 
 export interface TargetStatsData {

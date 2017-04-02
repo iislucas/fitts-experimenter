@@ -1,0 +1,76 @@
+<md-sidenav-container>
+    <md-sidenav #sidenav mode="push" opened="false">
+      <md-toolbar color="primary">
+          <button md-icon-button (click)="sidenav.toggle()">
+            <md-icon>menu</md-icon>
+          </button>
+          <span>Menu</span>
+      </md-toolbar>
+      <md-list>
+        <md-list-item>
+          <input #fileEl type="file" hidden name="file" (change)="fileSelected($event)" />
+          <button md-button (click)="loadFile()">
+            <md-icon>file_upload</md-icon>Load trials...
+          </button>
+        </md-list-item>
+        <md-list-item> <button md-button (click)="saveFile()">
+          <md-icon>file_download</md-icon> Save trials... </button> </md-list-item>
+      </md-list>
+      <md-list-item> <button md-button (click)="clearTrials()">
+            <md-icon></md-icon>Clear all trials...
+          </button>
+        </md-list-item>
+    </md-sidenav>
+    <div class="my-content">
+      <md-toolbar color="primary">
+          <button md-icon-button (click)="sidenav.toggle()">
+            <md-icon>menu</md-icon>
+          </button>
+          <span id="title">{{title}}</span>
+      </md-toolbar>
+
+      <md-tab-group #tabBar>
+        <md-tab label="Run a Trial">
+          <div>
+            <md-input-container #trialSettings class="trialSettings">
+              <textarea mdInput rows="26"
+                placeholder="Trial Settings" [(ngModel)]="trialParamsString"></textarea>
+            </md-input-container>
+          </div>
+          <div>
+            <button md-raised-button (click)="resetParams()">Reset</button>
+            <button md-raised-button (click)="loadParams()">Load</button>
+            <button md-raised-button (click)="saveParams()">Save</button>
+            <button md-fab (click)="startTrial()">Start</button>
+          </div><br>
+        </md-tab>
+        <md-tab label="Tials List">
+          <div *ngFor="let log of logs">
+            <md-card>
+              <div>
+                <div>id: {{ log.trialId }}, time: {{ log.start_timestamp }}, duration: {{ log.end_timestamp - log.start_timestamp }}</div>
+                <div>nevents: {{ log.events.length }}</div>
+                <div><md-input-container><input mdInput placeholder="Description"
+                    [(ngModel)]="log.description">
+                    </md-input-container></div>
+              </div>
+              <div>
+                <button md-raised-button>View</button>
+                <button md-raised-button>Delete</button>
+              </div>
+            </md-card>
+
+            <!--<button md-button>All</button>
+            <button md-raised-button>Of</button>
+            <button md-raised-button color="primary">The</button>
+            <button md-raised-button color="accent">Buttons</button>-->
+          </div>
+        </md-tab>
+        <md-tab label="Visualization">
+          <md-card>
+            TODO: add visualizations
+          </md-card>
+        </md-tab>
+      </md-tab-group>
+    </div>
+</md-sidenav-container>
