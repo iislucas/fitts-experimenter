@@ -1,6 +1,19 @@
-# FittsExperimenterAngular
+# A Fitts Experiment WebApp
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.0.0-rc.4.
+This repository provides a webapp to experiment with
+[Fitts tasks](https://en.wikipedia.org/wiki/Fitts's_law). The github hosted
+(static) webapp is at: https://iislucas.github.com/fitts-experimenter
+
+## How is it built?
+
+ * This project uses the [PixiJS](http://pixijs.github.io/docs/) library for
+   the animation and interaction, and [D3js](https://d3js.org/) for drawing
+   graphs.
+ * It is written in [Typescript](http://www.typescriptlang.org/).
+ * It uses [Angular2](https://angular.io/) as the UI and the [Angular CLI](https://github.com/angular/angular-cli) for the build framework.
+ * It uses [HTML5 local storage](https://www.html5rocks.com/en/features/storage)
+   to store data locally in your browser.
+ * The webapp is static (any static web-server will support hosting it).
 
 ## Development server
 
