@@ -60257,7 +60257,8 @@ function std(xs) {
     }
 }
 function stats(trialLog, targetName) {
-    let realEvents = RealEvents(trialLog);
+    let realEvents = trialLog.events.slice(5, // trialLog.params.skipFirstNTaps,
+    trialLog.events.length);
     if (targetName) {
         realEvents = realEvents.filter((e) => { return e.circleClickedOn === targetName; });
     }
@@ -60318,21 +60319,6 @@ function stats(trialLog, targetName) {
     };
 }
 exports.stats = stats;
-function RealEvents(trialLog) {
-    let events = trialLog.events.slice(trialLog.params.skipFirstNTaps, trialLog.events.length);
-    return events;
-}
-exports.RealEvents = RealEvents;
-function Mean(f, trialLog) {
-    let xs = RealEvents(trialLog).map(f);
-    return mathjs.mean(xs);
-}
-exports.Mean = Mean;
-function Std(f, trialLog) {
-    let xs = RealEvents(trialLog).map(f);
-    return mathjs.std(xs);
-}
-exports.Std = Std;
 
 
 /***/ }),
