@@ -27,6 +27,13 @@ export class AppComponent {
     this.logs = JSON.parse(localStorage.getItem(STORAGE_KEY_LOGS));
   }
 
+  dateStringifyLog(log: trial.Log) : string {
+    let length = Math.round((log.end_timestamp - log.start_timestamp) / 1000);
+    let date = new Date(log.start_timestamp);
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}` +
+         `@${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}+${length}s`;
+  }
+
   saveParams() {
     localStorage.setItem(STORAGE_KEY_PARAMS, this.trialParamsString);
   }
@@ -63,6 +70,10 @@ export class AppComponent {
     this.fileEl.nativeElement.click();
   }
 
+  removeOneTrial(index) {
+    this.logs.splice(index, 1);
+  }
+
   clearTrials() {
     this.logs = [];
     this.sidenav.close();
@@ -71,6 +82,7 @@ export class AppComponent {
 
   fileSelected(event: Event) {
     let files = (event.target as any).files; // FileList object
+    if(files === []) { return; }
     // files is a FileList of File objects. List some properties.
     for (let f of files) {
       console.log(`name: ${f.name}; type: ${f.type}; size: ${f.size}, lastmodified: ${f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'unknown'}`);
@@ -96,8 +108,21 @@ export class AppComponent {
           console.log(csv);
         } else if (filekind === 'json') {
           console.log('parsing json');
-          this.logs = JSON.parse((e.target as FileReader).result);
-          this.logs = this.logs.sort((log) => log.start_timestamp);
+          let moreLogs : trial.Log[] = JSON.parse((e.target as FileReader).result);
+          this.logs = moreLogs.concat(this.logs);
+          let combinedLogs : {[id:string]: trial.Log} = {} ;
+          for (let l of this.logs) {
+            combinedLogs[l.trialId] = l;
+          }
+          for (let l of moreLogs) {
+            combinedLogs[l.trialId] = l;
+          }
+          let combinedLogsList : trial.Log[] = [];
+          for (let k of Object.keys(combinedLogs)) {
+            combinedLogsList.push(combinedLogs[k]);
+          }
+          
+          this.logs = combinedLogsList.sort((log) => log.start_timestamp);
           localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(this.logs));
           console.log(this.logs);
         }
@@ -106,6 +131,7 @@ export class AppComponent {
       // Read in the image file as a data URL.
       reader.readAsText(f);
     }
+    files = [];
     this.sidenav.close();
     this.tabsGroup.selectedIndex = 1;
   }

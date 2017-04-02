@@ -45,18 +45,16 @@
           </div><br>
         </md-tab>
         <md-tab label="Tials List">
-          <div *ngFor="let log of logs">
+          <div *ngFor="let log of logs; let i=index">
             <md-card>
               <div>
-                <div>id: {{ log.trialId }}, time: {{ log.start_timestamp }}, duration: {{ log.end_timestamp - log.start_timestamp }}</div>
-                <div>nevents: {{ log.events.length }}</div>
-                <div><md-input-container><input mdInput placeholder="Description"
+                <div><b>{{i + 1}}</b>: {{ dateStringifyLog(log) }} (nevents: {{ log.events.length }})
+                     [ {{ log.trialId }} ]
+                <md-input-container><input mdInput placeholder="Description"
                     [(ngModel)]="log.description">
                     </md-input-container></div>
-              </div>
-              <div>
                 <button md-raised-button>View</button>
-                <button md-raised-button>Delete</button>
+                <button md-raised-button (click)="removeOneTrial(i)">Delete</button>
               </div>
             </md-card>
 

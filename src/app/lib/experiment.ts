@@ -314,6 +314,8 @@ export class Trial {
       events: [],
       contactEvents: [],
       params: trialParams,
+      description: '',
+      tags: '',
     };
     logs.push(this.trialLog);
 
