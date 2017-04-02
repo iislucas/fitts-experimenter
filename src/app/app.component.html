@@ -1,4 +1,4 @@
-<md-sidenav-container>
+<md-sidenav-container fullscreen>
     <md-sidenav #sidenav mode="push" opened="false">
       <md-toolbar color="primary">
           <button md-icon-button (click)="sidenav.toggle()">
@@ -6,20 +6,27 @@
           </button>
           <span>Menu</span>
       </md-toolbar>
-      <md-list>
-        <md-list-item>
-          <input #fileEl type="file" hidden name="file" (change)="fileSelected($event)" />
-          <button md-button (click)="loadFile()">
-            <md-icon>file_upload</md-icon>Load trials...
-          </button>
-        </md-list-item>
-        <md-list-item> <button md-button (click)="saveFile()">
-          <md-icon>file_download</md-icon> Save trials... </button> </md-list-item>
-      </md-list>
-      <md-list-item> <button md-button (click)="clearTrials()">
-            <md-icon></md-icon>Clear all trials...
-          </button>
-        </md-list-item>
+      <div class="menu">
+        <div><input #fileEl type="file" hidden name="file" (change)="fileSelected($event)" />
+            <button md-button (click)="loadTrialsFromFile()">
+            <md-icon>file_upload</md-icon>Upload more trials...</button>
+        </div>
+        <div><button md-button (click)="saveTrials()">
+            <md-icon>check_circle</md-icon>Save trials</button>
+        </div>
+        <div><button md-button (click)="saveTrialsToFile()">
+            <a #downloadLinkEl hidden></a>
+            <md-icon>file_download</md-icon>Download trials </button>
+        </div>
+        <hr />
+        <div><button md-button (click)="restoreTrials()">
+            <md-icon>restore</md-icon>Restore trials</button>
+        </div>
+        <hr />
+        <div><button md-button (click)="deleteAllTrials()">
+            <md-icon>delete</md-icon>Delete all trials</button>
+        </div>
+      </div>
     </md-sidenav>
     <div class="my-content">
       <md-toolbar color="primary">
@@ -32,7 +39,7 @@
       <md-tab-group #tabBar>
         <md-tab label="Run a Trial">
           <div>
-            <md-input-container #trialSettings class="trialSettings">
+            <md-input-container class="codeInput">
               <textarea mdInput rows="26"
                 placeholder="Trial Settings" [(ngModel)]="trialParamsString"></textarea>
             </md-input-container>
@@ -45,18 +52,20 @@
           </div><br>
         </md-tab>
         <md-tab label="Tials List">
-          <div *ngFor="let log of logs; let i=index">
+          <div *ngFor="let trial of allTrials; let i=index">
             <md-card>
               <div>
-                <div><b>{{i + 1}}</b>: {{ dateStringifyLog(log) }} (nevents: {{ log.events.length }})
-                     [ {{ log.trialId }} ]
+                <div class="trialTitle"><b>{{i + 1}}</b>:
+                    {{ dateStringifyTrialLog(trial) }}
+                    (nevents: {{ trial.events.length }})
+                    [ {{ trial.trialId }} ]
                 </div>
                 <div>
                   <md-input-container><input mdInput placeholder="Description"
-                      [(ngModel)]="log.description">
+                      [(ngModel)]="trial.description">
                       </md-input-container>
                   <md-input-container><input mdInput placeholder="Tags"
-                      [(ngModel)]="log.tags">
+                      [(ngModel)]="trial.tags">
                       </md-input-container>
                   <button md-raised-button>View</button>
                   <button md-raised-button (click)="removeOneTrial(i)">Delete</button>
@@ -72,7 +81,42 @@
         </md-tab>
         <md-tab label="Visualization">
           <md-card>
-            TODO: add visualizations
+            <div>
+              <md-input-container class="codeInput">
+                  <textarea mdInput rows="1"
+                    placeholder="Selected trials" [(ngModel)]="trialSearch"></textarea>
+              </md-input-container>
+              <md-input-container class="codeInput">
+                  <textarea mdInput rows="1"
+                    placeholder="Trial grouping" [(ngModel)]="trialGrouping"></textarea>
+              </md-input-container>
+              <md-checkbox checked>Show tap scatter</md-checkbox>
+              <md-checkbox checked>Show time-distance chart</md-checkbox>
+            </div>
+            <button md-raised-button (click)="resetVisualizationPrefs()">Reset</button>
+            <button md-raised-button (click)="restoreVisualizationPrefs()">Load</button>
+            <button md-raised-button (click)="saveVisualizationPrefs()">Save</button>
+            <button md-raised-button (click)="showVizualizations()">Show</button>
+          </md-card>
+          <md-card *ngFor="let group of selectedTrials; let gindex=index">
+              <div class="groupTitle">{{gindex}} : {{group.name}}</div>
+              <div *ngFor="let trial of group.trials; let i=index">
+                <div class="trialTitle"><b>{{i + 1}}</b>:
+                    {{ dateStringifyTrialLog(trial) }}
+                    (nevents: {{ trial.events.length }})
+                    [ {{ trial.trialId }} ]
+                </div>
+                <div>
+                  <md-input-container><input mdInput placeholder="Description"
+                      [(ngModel)]="trial.description">
+                      </md-input-container>
+                  <md-input-container><input mdInput placeholder="Tags"
+                      [(ngModel)]="trial.tags">
+                      </md-input-container>
+                </div>
+              </div>
+              <div>
+              </div>
           </md-card>
         </md-tab>
       </md-tab-group>
