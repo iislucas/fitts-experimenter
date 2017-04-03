@@ -77,9 +77,12 @@ h1 {
 }
 
 .groupTitle {
-  color: #369;
+  color: #236;
+  background: #8AE;
+  margin-bottom: 5px;
+  padding: 5px;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 150%;
+  font-size: 100%;
 }
 
 .trialTitle {

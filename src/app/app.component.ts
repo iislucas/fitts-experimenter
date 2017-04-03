@@ -205,7 +205,8 @@ export class AppComponent {
         let groupResult = trialGroupingRegExp.exec(tagStringToMatch);
         let key = '';
         if (groupResult) {
-          for (let s of groupResult.pop()) {
+          groupResult.pop()
+          for (let s of groupResult) {
             key = key.concat(s);
           }
         } else {

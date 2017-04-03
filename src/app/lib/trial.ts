@@ -131,10 +131,11 @@ function std(xs:number[]) : number {
   }
 }
 
-export function stats(trialLog: Log, targetName?:string) : TargetStats {
-  let realEvents = trialLog.events.slice(
+
+export function eventStats(events: Event[], targetName?:string) : TargetStats {
+  let realEvents = events.slice(
         5, // trialLog.params.skipFirstNTaps,
-        trialLog.events.length);
+        events.length);
 
   if (targetName) {
     realEvents = realEvents.filter(
@@ -209,4 +210,8 @@ export function stats(trialLog: Log, targetName?:string) : TargetStats {
     data: values,
     summary: summary,
   };
+}
+
+export function stats(trialLog: Log, targetName?:string) : TargetStats {
+  return eventStats(trialLog.events, targetName);
 }
