@@ -205,10 +205,7 @@ export class AppComponent {
         let groupResult = trialGroupingRegExp.exec(tagStringToMatch);
         let key = '';
         if (groupResult) {
-          groupResult.pop()
-          for (let s of groupResult) {
-            key = key.concat(s);
-          }
+            key = groupResult.pop()
         } else {
           key = 'id:' + t.trialId;
         }
