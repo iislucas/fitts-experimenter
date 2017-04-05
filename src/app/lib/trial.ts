@@ -87,6 +87,61 @@ export interface TargetStats {
   data: TargetStatsData;
 }
 
+export interface TrialData {
+  log: Log;
+  stats: TargetStats;
+  orientation: string;
+  distances: {[s: string] : number } ;
+}
+
+export function distancesOfTrial(trialLog:Log) :{[s: string] : number } {
+  let last_pos : [number,number];
+  let distances : {[s: string] : number } = {};
+
+  for (let e of trialLog.events) {
+    if(!e.circleClickedPos) {
+      console.log("warning: pre exp3 data type.");
+      break;
+    }
+    if (!last_pos) {
+      last_pos = e.circleClickedPos;
+      continue;
+    }
+    let d = Math.sqrt(Math.pow(last_pos[0] - e.circleClickedPos[0], 2) +
+                      Math.pow(last_pos[1] - e.circleClickedPos[1], 2))
+
+    let key = `${d}`;
+    if (!(key in distances)) {
+      distances[key] = 0;
+    }
+    distances[key] = distances[key] + 1;
+  }
+  return distances;
+}
+
+export function makeTrialData(trialLog:Log) : TrialData {
+  let stats = eventStats(trialLog.events);
+  let orientation = calcTrialOrientation(trialLog);
+  return {
+    log: trialLog,
+    stats: stats,
+    orientation: orientation,
+    distances: distancesOfTrial(trialLog),
+  }
+}
+
+export function calcTrialOrientation(trialLog:Log) : string {
+    let orientation = "?";
+    if(trialLog.params.circle1.init_angle === 0
+       || trialLog.params.circle2.init_angle === 180) {
+      orientation = "T";
+    } else if(trialLog.params.circle1.init_angle === 90
+       || trialLog.params.circle2.init_angle === 270) {
+      orientation = "M";
+    }
+    return orientation;
+}
+
 // Take the first |percentile| of elements.
 function takeFirstPercentile<T>(ns: T[], percentile:number) : { selected:T[], dropped:T[] } {
   ns.length;

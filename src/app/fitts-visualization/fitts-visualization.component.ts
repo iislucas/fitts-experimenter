@@ -12,7 +12,7 @@ import * as taps_viz from '../lib/taps_viz';
   styleUrls: ['./fitts-visualization.component.css']
 })
 export class FittsVisualizationComponent implements OnInit {
-  @Input() trials: trial.Log[];
+  @Input() trials: trial.TrialData[];
   @Input() showGraph: boolean;
   @Input() showTapsPlot: boolean;
   @ViewChild('vizEl') vizEl: ElementRef;
@@ -29,8 +29,8 @@ export class FittsVisualizationComponent implements OnInit {
     let dx_t_avg_data : { x:number; y:number; }[] = [];
     let dy_t_avg_data : { x:number; y:number; }[] = [];
 
-    for (let trialLog of this.trials) {
-      let stats = trial.stats(trialLog);
+    for (let t of this.trials) {
+      let stats = t.stats;
       if (stats.data.ts.length > 0 &&
           stats.data.ds.length > 0 &&
           stats.data.dxs.length > 0 &&
@@ -63,7 +63,7 @@ export class FittsVisualizationComponent implements OnInit {
 
     let aggregateEvents : trial.Event[] = [];
     for (let t of this.trials) {
-      aggregateEvents = aggregateEvents.concat(t.events);
+      aggregateEvents = aggregateEvents.concat(t.log.events);
     }
 
     let stats = trial.eventStats(aggregateEvents);

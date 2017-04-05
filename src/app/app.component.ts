@@ -24,9 +24,9 @@ const DEFAULT_PREFS : VisualizationPreferences = {
   trialGrouping: '.*',
 };
 
-interface SelectedTrial {
+interface SelectedTrials {
   name: string;
-  trials: trial.Log[]
+  trials: trial.TrialData[]
 }
 
 @Component({
@@ -39,8 +39,8 @@ export class AppComponent {
   trialParamsString: string;
   trialSearch: string = '.*';
   trialGrouping: string = '.*';
-  allTrials: trial.Log[] = [];
-  selectedTrials: SelectedTrial[] = [];
+  allTrialsData: trial.TrialData[] = [];
+  selectedTrials: SelectedTrials[] = [];
   @ViewChild('fileEl') fileEl:ElementRef;
   @ViewChild('downloadLinkEl') downloadLinkEl:ElementRef;
   @ViewChild('tabBar') tabsGroup: MdTabGroup;
@@ -56,7 +56,7 @@ export class AppComponent {
     let length = Math.round((log.end_timestamp - log.start_timestamp) / 1000);
     let date = new Date(log.start_timestamp);
     return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}` +
-         `@${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}+${length}s`;
+           `@${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}+${length}s`;
   }
 
   // Visualization Preferences
@@ -101,7 +101,7 @@ export class AppComponent {
 
   saveTrialsToFile() {
     let file = new File(
-      [JSON.stringify(this.allTrials)],
+      [JSON.stringify(this.allTrialsData.map(d => d.log))],
       'fitts-app-' + helpers.dateStringOfTimestamp(Date.now()) + '.json',
       { type: 'application/octet-stream;charset=utf-8'}
     );
@@ -117,7 +117,7 @@ export class AppComponent {
 
   // When UI wants us to remove a trial.
   removeOneTrial(index) {
-    this.allTrials.splice(index, 1);
+    this.allTrialsData.splice(index, 1);
   }
 
   // Load/save of trials.
@@ -125,15 +125,18 @@ export class AppComponent {
     this.fileEl.nativeElement.click();
   }
   deleteAllTrials() {
-    this.allTrials = [];
+    this.allTrialsData = [];
     this.sidenav.close();
   }
   saveTrials() {
-    localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(this.allTrials));
+    localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(
+      this.allTrialsData.map((d) => d.log)));
     this.sidenav.close();
   }
   restoreTrials() {
-    this.allTrials = JSON.parse(localStorage.getItem(STORAGE_KEY_LOGS));
+    this.allTrialsData =
+      (JSON.parse(localStorage.getItem(STORAGE_KEY_LOGS)))
+      .map(t => trial.makeTrialData(t));
     this.sidenav.close();
   }
 
@@ -142,7 +145,9 @@ export class AppComponent {
     if(files === []) { return; }
     // files is a FileList of File objects. List some properties.
     for (let f of files) {
-      console.log(`name: ${f.name}; type: ${f.type}; size: ${f.size}, lastmodified: ${f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'unknown'}`);
+      console.log(`name: ${f.name}; type: ${f.type}; ` +
+                  `size: ${f.size}, ` +
+                  `lastmodified: ${f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'unknown'}`);
 
       let filekind = 'unknown';
       if(f.type.match('csv')) {
@@ -166,22 +171,23 @@ export class AppComponent {
         } else if (filekind === 'json') {
           console.log('parsing json');
           let moreLogs : trial.Log[] = JSON.parse((e.target as FileReader).result);
-          this.allTrials = moreLogs.concat(this.allTrials);
-          let combinedLogs : {[id:string]: trial.Log} = {} ;
-          for (let l of this.allTrials) {
-            combinedLogs[l.trialId] = l;
+          let moreData = moreLogs.map(l => trial.makeTrialData(l));
+          this.allTrialsData = moreData.concat(this.allTrialsData);
+          let combinedLogs : {[id:string]: trial.TrialData} = {} ;
+          for (let l of this.allTrialsData) {
+            combinedLogs[l.log.trialId] = l;
           }
-          for (let l of moreLogs) {
-            combinedLogs[l.trialId] = l;
+          for (let l of moreData) {
+            combinedLogs[l.log.trialId] = l;
           }
-          let combinedLogsList : trial.Log[] = [];
+          let combinedLogsList : trial.TrialData[] = [];
           for (let k of Object.keys(combinedLogs)) {
             combinedLogsList.push(combinedLogs[k]);
           }
 
-          this.allTrials = combinedLogsList.sort((log) => log.start_timestamp);
-          localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(this.allTrials));
-          console.log(this.allTrials);
+          this.allTrialsData = combinedLogsList.sort(d => d.log.start_timestamp);
+          localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(this.allTrialsData));
+          console.log(this.allTrialsData);
         }
       };
 
@@ -193,26 +199,38 @@ export class AppComponent {
     this.tabsGroup.selectedIndex = TAB_INDEX_TRIALS;
   }
 
+  distancesString(distances : {[s: string] : number }) : string {
+    let outputs: string[] = [];
+    for (let d of Object.keys(distances).sort()) {
+      outputs.push(`${d}:${distances[d]}`);
+    }
+    return outputs.join(',');
+  }
+
+  showLog(t:trial.TrialData) {
+    console.log(t);
+  }
+
   showVizualizations() {
     let trialSearchRegExp = new RegExp(this.trialSearch);
     let trialGroupingRegExp = new RegExp(this.trialGrouping);
 
-    let trialGroups : { [name:string] : trial.Log[] } = {};
+    let trialGroups : { [name:string] : trial.TrialData[] } = {};
 
-    for (let t of this.allTrials) {
-      let tagStringToMatch : string = t.tags || '';
+    for (let d of this.allTrialsData) {
+      let tagStringToMatch : string = d.log.tags || '';
       if (trialSearchRegExp.test(tagStringToMatch)){
         let groupResult = trialGroupingRegExp.exec(tagStringToMatch);
         let key = '';
         if (groupResult) {
             key = groupResult.pop()
         } else {
-          key = 'id:' + t.trialId;
+          key = 'id:' + d.log.trialId;
         }
         if(!(key in trialGroups)) {
           trialGroups[key] = [];
         }
-        trialGroups[key].push(t);
+        trialGroups[key].push(d);
       }
     }
 
@@ -221,8 +239,9 @@ export class AppComponent {
     for (let key of Object.keys(trialGroups)) {
       this.selectedTrials.push({
         name: key,
-        trials: trialGroups[key]
+        trials: trialGroups[key],
       })
     }
+    console.log(this.selectedTrials);
   }
 }

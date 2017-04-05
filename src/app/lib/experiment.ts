@@ -89,18 +89,6 @@ export function makeRawTextLogs(): string {
   return logStrings.join('\n');
 }
 
-function calcOrientation(trialLog:trial.Log) : string {
-    let orientation = "M";
-    if(trialLog.params.circle1.init_angle === 0
-       || trialLog.params.circle2.init_angle === 180) {
-      orientation = "H";
-    } else if(trialLog.params.circle1.init_angle === 90
-       || trialLog.params.circle2.init_angle === 270) {
-      orientation = "V";
-    }
-    return orientation;
-}
-
 function pickRandomOrbitDistance(c: params.Circle) : number {
   return mathjs.pickRandom(c.orbit_distances);
 }
@@ -161,7 +149,7 @@ export function csvTrialLogs() {
   strings = strings.concat(logs.map((trialLog:trial.Log) => {
     let trialStrings: string[] = [];
     trialStrings.push(`${trialLog.trialId}`);
-    trialStrings.push(`${calcOrientation(trialLog)}`);
+    trialStrings.push(`${trial.calcTrialOrientation(trialLog)}`);
     trialStrings.push(`${initDistancesString(trialLog)}`);
     trialStrings.push(`${trialLog.events.length}`);
 
