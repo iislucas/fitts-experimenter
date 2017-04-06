@@ -237,7 +237,7 @@ export class AppComponent {
   }
 
   showLog(t:trial.TrialData) {
-    console.log(t);
+    console.log(JSON.stringify(t,null,2));
   }
 
   showVizualizations() {

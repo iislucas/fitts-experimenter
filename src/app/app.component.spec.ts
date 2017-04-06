@@ -10,8 +10,12 @@ import { test_log } from './lib/testdata/log';
 
 describe('trial', () => {
   it('trial data splitting behaves', async(() => {
-    let split_logs = trial.splitTrialByDistances(test_log);
-    console.log(JSON.stringify(split_logs, null, 2));
+    let minimal_log = Object.assign({}, test_log);
+    minimal_log.params = ('ignored patams as they dont matter' as any);
+    let distances = trial.distancesOfTrial(minimal_log);
+    expect(distances).toEqual({ '0': 1, '360': 5, '480': 4, 'undefined': 1 });
+    let split_logs = trial.splitTrialByDistances(minimal_log);
+    expect(split_logs.map(trial.distancesOfTrial)).toEqual([{ '0': 1}, {'360': 5}, {'480': 4}, {'undefined': 1}]);
     expect(split_logs.length).toBe(4);
   }));
 });

@@ -100,12 +100,14 @@ export interface TrialData {
 export function updatePrevCirclePositions(events:Event[]) {
   let last_pos : [number,number];
   for (let e of events) {
-    e.prevCircleClickedPos = last_pos;
+    if (e.prevCircleClickedPos === undefined) {
+      e.prevCircleClickedPos = last_pos;
+    }
     last_pos = e.circleClickedPos;
   }
 }
 
-export function splitTrialByDistances(trialLog:Log) : Log[] {
+export function trialEventsByDistances(trialLog:Log) : { [distance:string] : Event[] } {
   updatePrevCirclePositions(trialLog.events);
 
   let eventsByDistance : {[s: string] : Event[] } = {};
@@ -119,6 +121,11 @@ export function splitTrialByDistances(trialLog:Log) : Log[] {
     if (!(d_key in eventsByDistance)) { eventsByDistance[d_key] = []; }
     eventsByDistance[d_key].push(e);
   }
+  return eventsByDistance;
+}
+
+export function splitTrialByDistances(trialLog:Log) : Log[] {
+  let eventsByDistance = trialEventsByDistances(trialLog);
 
   let logsByDistance : Log[] = Object.keys(eventsByDistance).map(d => {
       let newLog : Log = Object.assign({}, trialLog);
@@ -130,26 +137,11 @@ export function splitTrialByDistances(trialLog:Log) : Log[] {
 }
 
 export function distancesOfTrial(trialLog:Log) :{[s: string] : number } {
-  let last_pos : [number,number];
+  let eventsByDistance = trialEventsByDistances(trialLog);
+
   let distances : {[s: string] : number } = {};
-
-  for (let e of trialLog.events) {
-    if(!e.circleClickedPos) {
-      console.error("warning: pre exp3 data type.");
-      break;
-    }
-    if (!last_pos) {
-      last_pos = e.circleClickedPos;
-      continue;
-    }
-    let d = Math.sqrt(Math.pow(last_pos[0] - e.circleClickedPos[0], 2) +
-                      Math.pow(last_pos[1] - e.circleClickedPos[1], 2))
-
-    let key = `${d}`;
-    if (!(key in distances)) {
-      distances[key] = 0;
-    }
-    distances[key] = distances[key] + 1;
+  for (let d_key of Object.keys(eventsByDistance)) {
+    distances[d_key] = eventsByDistance[d_key].length;
   }
   return distances;
 }
