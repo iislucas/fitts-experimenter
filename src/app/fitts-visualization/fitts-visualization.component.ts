@@ -9,12 +9,12 @@ import * as taps_viz from '../lib/taps_viz';
 @Component({
   selector: 'app-fitts-visualization',
   templateUrl: './fitts-visualization.component.html',
-  styleUrls: ['./fitts-visualization.component.css']
+  styleUrls: ['./fitts-visualization.component.css'],
 })
 export class FittsVisualizationComponent implements OnInit {
-  @Input() trials: trial.TrialData[];
-  @Input() showGraph: boolean;
-  @Input() showTapsPlot: boolean;
+  @Input() trials: trial.TrialData[] = [];
+  @Input() showGraph: boolean = false;
+  @Input() showTapsPlot: boolean = false;
   @ViewChild('vizEl') vizEl: ElementRef;
 
   constructor() { }

@@ -18,6 +18,7 @@ export interface Event {
   timestamp: number;
   circleClickedOn: string;
   circleClickedPos: [number,number];
+  prevCircleClickedPos ?: [number,number];
   distanceToCenter: number;
   timeSinceLastClick: number;
   dx: number;
@@ -91,7 +92,41 @@ export interface TrialData {
   log: Log;
   stats: TargetStats;
   orientation: string;
-  distances: {[s: string] : number } ;
+  distances: {[s: string] : number };
+  lookahead: '1' | '2' | '?';
+}
+
+// Note: changes events.
+export function updatePrevCirclePositions(events:Event[]) {
+  let last_pos : [number,number];
+  for (let e of events) {
+    e.prevCircleClickedPos = last_pos;
+    last_pos = e.circleClickedPos;
+  }
+}
+
+export function splitTrialByDistances(trialLog:Log) : Log[] {
+  updatePrevCirclePositions(trialLog.events);
+
+  let eventsByDistance : {[s: string] : Event[] } = {};
+
+  for (let e of trialLog.events) {
+    let d_key = 'undefined';
+    if (e.prevCircleClickedPos !== undefined && e.circleClickedPos !== undefined) {
+      d_key = `${Math.sqrt(Math.pow(e.prevCircleClickedPos[0] - e.circleClickedPos[0], 2) +
+                 Math.pow(e.prevCircleClickedPos[1] - e.circleClickedPos[1], 2))}`;
+    }
+    if (!(d_key in eventsByDistance)) { eventsByDistance[d_key] = []; }
+    eventsByDistance[d_key].push(e);
+  }
+
+  let logsByDistance : Log[] = Object.keys(eventsByDistance).map(d => {
+      let newLog : Log = Object.assign({}, trialLog);
+      newLog.events = eventsByDistance[d];
+      return newLog;
+    });
+
+  return logsByDistance;
 }
 
 export function distancesOfTrial(trialLog:Log) :{[s: string] : number } {
@@ -100,7 +135,7 @@ export function distancesOfTrial(trialLog:Log) :{[s: string] : number } {
 
   for (let e of trialLog.events) {
     if(!e.circleClickedPos) {
-      console.log("warning: pre exp3 data type.");
+      console.error("warning: pre exp3 data type.");
       break;
     }
     if (!last_pos) {
@@ -122,11 +157,18 @@ export function distancesOfTrial(trialLog:Log) :{[s: string] : number } {
 export function makeTrialData(trialLog:Log) : TrialData {
   let stats = eventStats(trialLog.events);
   let orientation = calcTrialOrientation(trialLog);
+  let lookahead : '1' | '2' | '?' = '?';
+  if (trialLog.params.circle1.lookahead && trialLog.params.circle2.lookahead) {
+    lookahead = '2';
+  } else if (!trialLog.params.circle1.lookahead && !trialLog.params.circle2.lookahead) {
+    lookahead = '1';
+  }
   return {
     log: trialLog,
     stats: stats,
     orientation: orientation,
     distances: distancesOfTrial(trialLog),
+    lookahead: lookahead,
   }
 }
 

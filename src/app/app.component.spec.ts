@@ -2,6 +2,19 @@ import { TestBed, async } from '@angular/core/testing';
 import { MaterialModule } from '@angular/material';
 
 import { AppComponent } from './app.component';
+import { FittsVisualizationComponent } from './fitts-visualization/fitts-visualization.component';
+import { FittsTrialViewComponent } from './fitts-trial-view/fitts-trial-view.component';
+
+import * as trial from './lib/trial';
+import { test_log } from './lib/testdata/log';
+
+describe('trial', () => {
+  it('trial data splitting behaves', async(() => {
+    let split_logs = trial.splitTrialByDistances(test_log);
+    console.log(JSON.stringify(split_logs, null, 2));
+    expect(split_logs.length).toBe(4);
+  }));
+});
 
 describe('AppComponent', () => {
   beforeEach(async(() => {
@@ -10,7 +23,9 @@ describe('AppComponent', () => {
         MaterialModule
       ],
       declarations: [
-        AppComponent
+        AppComponent,
+        FittsVisualizationComponent,
+        FittsTrialViewComponent
       ],
     }).compileComponents();
   }));

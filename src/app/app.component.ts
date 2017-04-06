@@ -20,8 +20,8 @@ interface VisualizationPreferences {
 }
 
 const DEFAULT_PREFS : VisualizationPreferences = {
-  trialSearch: '.*',
-  trialGrouping: '.*',
+  trialSearch: '^(.*)$',
+  trialGrouping: '$1',
 };
 
 interface SelectedTrials {
@@ -37,8 +37,8 @@ interface SelectedTrials {
 export class AppComponent {
   title = 'Fitts Experimenter';
   trialParamsString: string;
-  trialSearch: string = '.*';
-  trialGrouping: string = '.*';
+  trialSearch: string = DEFAULT_PREFS.trialSearch ;
+  trialGrouping: string = DEFAULT_PREFS.trialGrouping;
   allTrialsData: trial.TrialData[] = [];
   selectedTrials: SelectedTrials[] = [];
   @ViewChild('fileEl') fileEl:ElementRef;
@@ -52,11 +52,37 @@ export class AppComponent {
     this.restoreTrials();
   }
 
+  distancesString(distances : {[s: string] : number }) : string {
+    let outputs: string[] = [];
+    for (let d of Object.keys(distances).sort()) {
+      outputs.push(`${d}:${distances[d]}`);
+    }
+    return outputs.join(',');
+  }
+
   dateStringifyTrialLog(log: trial.Log) : string {
     let length = Math.round((log.end_timestamp - log.start_timestamp) / 1000);
     let date = new Date(log.start_timestamp);
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}` +
-           `@${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}+${length}s`;
+    function makeTwoDigit(x) {
+      let s = `${x}`;
+      if (s.length < 2){
+        s = '0' + s;
+      }
+      return s;
+    }
+    return `${date.getFullYear()}-${makeTwoDigit(date.getMonth() + 1)}` +
+           `-${makeTwoDigit(date.getDate())}` +
+           `@${makeTwoDigit(date.getHours())}:${makeTwoDigit(date.getMinutes())}` +
+           `:${makeTwoDigit(date.getSeconds())}+${makeTwoDigit(length)}s`;
+  }
+
+  trialString(t:trial.TrialData) {
+    return `description:${t.log.description} ` +
+           `time:${this.dateStringifyTrialLog(t.log)} ` +
+           `lookahead:${t.lookahead} ` +
+           `orientation:${t.orientation} ` +
+           `distances:[${this.distancesString(t.distances)}] ` +
+           `tags:${t.log.tags} `;
   }
 
   // Visualization Preferences
@@ -121,9 +147,6 @@ export class AppComponent {
   }
 
   // Load/save of trials.
-  loadTrialsFromFile() {
-    this.fileEl.nativeElement.click();
-  }
   deleteAllTrials() {
     this.allTrialsData = [];
     this.sidenav.close();
@@ -134,12 +157,18 @@ export class AppComponent {
     this.sidenav.close();
   }
   restoreTrials() {
-    this.allTrialsData =
-      (JSON.parse(localStorage.getItem(STORAGE_KEY_LOGS)))
-      .map(t => trial.makeTrialData(t));
+    let trialLogs = JSON.parse(localStorage.getItem(STORAGE_KEY_LOGS));
+    if (!trialLogs) {
+      this.allTrialsData = [];
+    } else {
+      this.allTrialsData = trialLogs.map(t => trial.makeTrialData(t));
+    }
     this.sidenav.close();
   }
-
+  loadTrialsFromFile() {
+    this.fileEl.nativeElement.click();
+  }
+  // Called indirectly by loadTrialsFromFile
   fileSelected(event: Event) {
     let files = (event.target as any).files; // FileList object
     if(files === []) { return; }
@@ -171,22 +200,30 @@ export class AppComponent {
         } else if (filekind === 'json') {
           console.log('parsing json');
           let moreLogs : trial.Log[] = JSON.parse((e.target as FileReader).result);
+          // Set description according to filename.
+          for (let l of moreLogs) {
+            if (!l.description || l.description === '') {
+              l.description = f.name;
+            }
+          }
           let moreData = moreLogs.map(l => trial.makeTrialData(l));
-          this.allTrialsData = moreData.concat(this.allTrialsData);
+          // this.allTrialsData = moreData.concat(this.allTrialsData);
           let combinedLogs : {[id:string]: trial.TrialData} = {} ;
           for (let l of this.allTrialsData) {
             combinedLogs[l.log.trialId] = l;
           }
+          // Newly loaded data overwrites local data.
           for (let l of moreData) {
             combinedLogs[l.log.trialId] = l;
           }
+          //
           let combinedLogsList : trial.TrialData[] = [];
           for (let k of Object.keys(combinedLogs)) {
             combinedLogsList.push(combinedLogs[k]);
           }
-
-          this.allTrialsData = combinedLogsList.sort(d => d.log.start_timestamp);
-          localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(this.allTrialsData));
+          this.allTrialsData = combinedLogsList.sort(
+              (d1, d2) => d1.log.start_timestamp - d2.log.start_timestamp);
+          localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(this.allTrialsData.map(d => d.log)));
           console.log(this.allTrialsData);
         }
       };
@@ -199,34 +236,19 @@ export class AppComponent {
     this.tabsGroup.selectedIndex = TAB_INDEX_TRIALS;
   }
 
-  distancesString(distances : {[s: string] : number }) : string {
-    let outputs: string[] = [];
-    for (let d of Object.keys(distances).sort()) {
-      outputs.push(`${d}:${distances[d]}`);
-    }
-    return outputs.join(',');
-  }
-
   showLog(t:trial.TrialData) {
     console.log(t);
   }
 
   showVizualizations() {
     let trialSearchRegExp = new RegExp(this.trialSearch);
-    let trialGroupingRegExp = new RegExp(this.trialGrouping);
 
     let trialGroups : { [name:string] : trial.TrialData[] } = {};
 
     for (let d of this.allTrialsData) {
-      let tagStringToMatch : string = d.log.tags || '';
+      let tagStringToMatch : string = this.trialString(d);
       if (trialSearchRegExp.test(tagStringToMatch)){
-        let groupResult = trialGroupingRegExp.exec(tagStringToMatch);
-        let key = '';
-        if (groupResult) {
-            key = groupResult.pop()
-        } else {
-          key = 'id:' + d.log.trialId;
-        }
+        let key = tagStringToMatch.replace(trialSearchRegExp, this.trialGrouping);
         if(!(key in trialGroups)) {
           trialGroups[key] = [];
         }
@@ -243,5 +265,19 @@ export class AppComponent {
       })
     }
     console.log(this.selectedTrials);
+  }
+
+  splitByDistance() {
+    console.log(JSON.stringify(this.allTrialsData.map(d=> d.log), null, 2));
+    let newLogs : trial.Log[] = [];
+    for(let t of this.allTrialsData) {
+      newLogs = newLogs.concat(trial.splitTrialByDistances(t.log));
+    }
+    this.allTrialsData = newLogs.map(l => trial.makeTrialData(l));
+    console.log(JSON.stringify(newLogs, null, 2));
+  }
+
+  mergeByDistance() {
+
   }
 }
