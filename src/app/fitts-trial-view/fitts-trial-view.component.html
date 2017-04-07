@@ -1,3 +1,13 @@
-<p>
-  fitts-trial-view works!
-</p>
+<div class="trialTitle" (click)="showDetails = !showDetails"><b>{{index + 1}}</b>:
+    {{ trialString(data) }}
+</div>
+<div *ngIf="showDetails">
+  <md-input-container><input mdInput placeholder="Description"
+      [(ngModel)]="data.log.description">
+      </md-input-container>
+  <md-input-container><input mdInput placeholder="Tags"
+      [(ngModel)]="data.log.tags">
+      </md-input-container>
+  <button md-raised-button (click)="showLog(data)">View</button>
+  <button md-raised-button (click)="delete(i)">Delete</button>
+</div>

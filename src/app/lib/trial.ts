@@ -96,6 +96,39 @@ export interface TrialData {
   lookahead: '1' | '2' | '?';
 }
 
+
+function distancesString(distances : {[s: string] : number }) : string {
+  let outputs: string[] = [];
+  for (let d of Object.keys(distances).sort()) {
+    outputs.push(`${d}:${distances[d]}`);
+  }
+  return outputs.join(',');
+}
+
+function dateStringifyTrialLog(log: Log) : string {
+  let length = Math.round((log.end_timestamp - log.start_timestamp) / 1000);
+  let date = new Date(log.start_timestamp);
+  function makeTwoDigit(x) {
+    let s = `${x}`;
+    if (s.length < 2){
+      s = '0' + s;
+    }
+    return s;
+  }
+  return `${date.getFullYear()}-${makeTwoDigit(date.getMonth() + 1)}` +
+          `-${makeTwoDigit(date.getDate())}` +
+          `@${makeTwoDigit(date.getHours())}:${makeTwoDigit(date.getMinutes())}` +
+          `:${makeTwoDigit(date.getSeconds())}+${makeTwoDigit(length)}s`;
+}
+
+export function trialString(t:TrialData) {
+  return `description:${t.log.description} ` +
+          `time:${dateStringifyTrialLog(t.log)} ` +
+          `lookahead:${t.lookahead} ` +
+          `orientation:${t.orientation} ` +
+          `distances:[${distancesString(t.distances)}] ` +
+          `tags:${t.log.tags || ''} `;
+}
 // Note: changes events.
 export function updatePrevCirclePositions(events:Event[]) {
   let last_pos : [number,number];

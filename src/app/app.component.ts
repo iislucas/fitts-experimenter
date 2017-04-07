@@ -52,39 +52,6 @@ export class AppComponent {
     this.restoreTrials();
   }
 
-  distancesString(distances : {[s: string] : number }) : string {
-    let outputs: string[] = [];
-    for (let d of Object.keys(distances).sort()) {
-      outputs.push(`${d}:${distances[d]}`);
-    }
-    return outputs.join(',');
-  }
-
-  dateStringifyTrialLog(log: trial.Log) : string {
-    let length = Math.round((log.end_timestamp - log.start_timestamp) / 1000);
-    let date = new Date(log.start_timestamp);
-    function makeTwoDigit(x) {
-      let s = `${x}`;
-      if (s.length < 2){
-        s = '0' + s;
-      }
-      return s;
-    }
-    return `${date.getFullYear()}-${makeTwoDigit(date.getMonth() + 1)}` +
-           `-${makeTwoDigit(date.getDate())}` +
-           `@${makeTwoDigit(date.getHours())}:${makeTwoDigit(date.getMinutes())}` +
-           `:${makeTwoDigit(date.getSeconds())}+${makeTwoDigit(length)}s`;
-  }
-
-  trialString(t:trial.TrialData) {
-    return `description:${t.log.description} ` +
-           `time:${this.dateStringifyTrialLog(t.log)} ` +
-           `lookahead:${t.lookahead} ` +
-           `orientation:${t.orientation} ` +
-           `distances:[${this.distancesString(t.distances)}] ` +
-           `tags:${t.log.tags} `;
-  }
-
   // Visualization Preferences
   saveVisualizationPrefs() {
     localStorage.setItem(STORAGE_KEY_PREFS, JSON.stringify({
@@ -236,17 +203,13 @@ export class AppComponent {
     this.tabsGroup.selectedIndex = TAB_INDEX_TRIALS;
   }
 
-  showLog(t:trial.TrialData) {
-    console.log(JSON.stringify(t,null,2));
-  }
-
   showVizualizations() {
     let trialSearchRegExp = new RegExp(this.trialSearch);
 
     let trialGroups : { [name:string] : trial.TrialData[] } = {};
 
     for (let d of this.allTrialsData) {
-      let tagStringToMatch : string = this.trialString(d);
+      let tagStringToMatch : string = trial.trialString(d);
       if (trialSearchRegExp.test(tagStringToMatch)){
         let key = tagStringToMatch.replace(trialSearchRegExp, this.trialGrouping);
         if(!(key in trialGroups)) {

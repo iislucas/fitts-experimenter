@@ -4,6 +4,7 @@ import { MaterialModule } from '@angular/material';
 import { AppComponent } from './app.component';
 import { FittsVisualizationComponent } from './fitts-visualization/fitts-visualization.component';
 import { FittsTrialViewComponent } from './fitts-trial-view/fitts-trial-view.component';
+import { FormsModule } from '@angular/forms';
 
 import * as trial from './lib/trial';
 import { test_log } from './lib/testdata/log';
@@ -29,7 +30,8 @@ describe('AppComponent', () => {
       declarations: [
         AppComponent,
         FittsVisualizationComponent,
-        FittsTrialViewComponent
+        FittsTrialViewComponent,
+        FormsModule,
       ],
     }).compileComponents();
   }));

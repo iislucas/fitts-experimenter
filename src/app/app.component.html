@@ -57,32 +57,9 @@
 
           <div *ngFor="let data of allTrialsData; let i=index">
             <md-card>
-              <div>
-                <div class="trialTitle"><b>{{i + 1}}</b>:
-                    {{ trialString(data) }}
-                    <!--{{ dateStringifyTrialLog(data.log) }}
-                    (nevents: {{ data.log.events.length }})
-                    [ {{ data.log.trialId }} ]<br>
-                    o={{ data.orientation }}, d:n=[{{ distancesString(data.distances) }}],
-                    l={{ data.lookahead }}-->
-                </div>
-                <div>
-                  <md-input-container><input mdInput placeholder="Description"
-                      [(value)]="data.log.description">
-                      </md-input-container>
-                  <md-input-container><input mdInput placeholder="Tags"
-                      [(value)]="data.log.tags">
-                      </md-input-container>
-                  <button md-raised-button (click)="showLog(data)">View</button>
-                  <button md-raised-button (click)="removeOneTrial(i)">Delete</button>
-                </div>
-              </div>
+              <app-fitts-trial-view [data]="data" [index]="i"
+                (delete)="removeOneTrial($event)"></app-fitts-trial-view>
             </md-card>
-
-            <!--<button md-button>All</button>
-            <button md-raised-button>Of</button>
-            <button md-raised-button color="primary">The</button>
-            <button md-raised-button color="accent">Buttons</button>-->
           </div>
         </md-tab>
         <md-tab label="Visualization">
@@ -107,12 +84,8 @@
           <md-card *ngFor="let group of selectedTrials; let gindex=index">
               <div class="groupTitle">{{gindex}} : {{group.name}}</div>
               <div *ngFor="let trial of group.trials; let i=index">
-                <div class="trialTitle"><b>{{i + 1}}</b>:
-                    {{ trialString(trial) }}
-                    <!--{{ dateStringifyTrialLog(trial.log) }}
-                    (nevents: {{ trial.log.events.length }})
-                    [ {{ trial.log.trialId }} ]-->
-                </div>
+                <app-fitts-trial-view [data]="trial" [index]="i"
+                  (delete)="removeOneTrial($event)"></app-fitts-trial-view>
               </div>
               <app-fitts-visualization [trials]="group.trials"></app-fitts-visualization>
           </md-card>
