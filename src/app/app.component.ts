@@ -20,7 +20,7 @@ interface VisualizationPreferences {
   vizGroupSubst: string;
 }
 const DEFAULT_VIZ_PREFS : VisualizationPreferences = {
-  vizGroupSearchRegex: '^(.*)$',
+  vizGroupSearchRegex: '^.* distances:\\[([^0]\\d+):\\d+([^\\]]+)\\] .*$',
   vizGroupSubst: '$1',
 };
 
@@ -28,7 +28,7 @@ interface TablePreferences {
   tableSearchRegex: string,
 }
 const DEFAULT_TABLE_PREFS : TablePreferences = {
-  tableSearchRegex: '^.*$',
+  tableSearchRegex: '^.* distances:\\[([^0]\\d+):\\d+([^\\]]+)\\] .*$',
 };
 
 interface SelectedTrialGroups {
@@ -164,7 +164,12 @@ export class AppComponent {
     if (!trialLogs) {
       this.allTrialsData = [];
     } else {
-      this.allTrialsData = trialLogs.map(t => trial.makeTrialData(t));
+      try {
+        this.allTrialsData = trialLogs.map(t => trial.makeTrialData(t));
+      } catch (e) {
+        console.error(`Cannot load trialLogs: ${e.message}`);
+        this.allTrialsData = [];
+      }
     }
     this.sidenav.close();
   }
@@ -240,41 +245,49 @@ export class AppComponent {
   }
 
   showVizualizations() {
-    let trialSearchRegExp = new RegExp(this.vizGroupSearchRegex);
-
-    let trialGroups : { [name:string] : trial.TrialData[] } = {};
-
-    for (let d of this.allTrialsData) {
-      let tagStringToMatch : string = trial.trialString(d);
-      if (trialSearchRegExp.test(tagStringToMatch)){
-        let key = tagStringToMatch.replace(trialSearchRegExp, this.vizGroupSubst);
-        console.log(`tagStringToMatch: ${tagStringToMatch}`);
-        console.log(`this.trialGrouping: ${this.vizGroupSubst}`);
-        console.log(`key: ${key}`);
-        if(!(key in trialGroups)) {
-          trialGroups[key] = [];
-        }
-        trialGroups[key].push(d);
-      }
-    }
-
-    //
     this.selectedTrialGroups = [];
-    for (let key of Object.keys(trialGroups)) {
-      this.selectedTrialGroups.push({
-        name: key,
-        trials: trialGroups[key],
-      })
+    try {
+      let trialSearchRegExp = new RegExp(this.vizGroupSearchRegex);
+
+      let trialGroups : { [name:string] : trial.TrialData[] } = {};
+
+      for (let d of this.allTrialsData) {
+        let tagStringToMatch : string = trial.trialString(d);
+        if (trialSearchRegExp.test(tagStringToMatch)){
+          let key = tagStringToMatch.replace(trialSearchRegExp, this.vizGroupSubst);
+          console.log(`tagStringToMatch: ${tagStringToMatch}`);
+          console.log(`this.trialGrouping: ${this.vizGroupSubst}`);
+          console.log(`key: ${key}`);
+          if(!(key in trialGroups)) {
+            trialGroups[key] = [];
+          }
+          trialGroups[key].push(d);
+        }
+      }
+      //
+      for (let key of Object.keys(trialGroups)) {
+        this.selectedTrialGroups.push({
+          name: key,
+          trials: trialGroups[key],
+        })
+      }
+    } catch (e) {
+      console.warn('bad regexp.', e);
     }
   }
 
   showTable() {
     this.tableSelectedTrials = [];
-    let trialSearchRegExp = new RegExp(this.tableSearchRegex);
-    for (let d of this.allTrialsData) {
-      if (trialSearchRegExp.test(trial.trialString(d))){
-        this.tableSelectedTrials.push(d);
+    try {
+      let trialSearchRegExp = new RegExp(this.tableSearchRegex);
+
+      for (let d of this.allTrialsData) {
+        if (trialSearchRegExp.test(trial.trialString(d))){
+          this.tableSelectedTrials.push(d);
+        }
       }
+    } catch (e) {
+      console.warn('bad regexp.', e);
     }
   }
   dateStringifyTrialLog = trial.dateStringifyTrialLog;
