@@ -97,3 +97,15 @@ h1 {
   color: #CCC;
   margin: 0.5em;
 }
+
+table.statsTable {
+  margin: 10px;
+  border-collapse: collapse;
+  border: solid 1px #369;
+}
+
+.statsTable th, .statsTable td {
+  border: solid 1px #369;
+  margin: 0px;
+  padding: 2px;
+}

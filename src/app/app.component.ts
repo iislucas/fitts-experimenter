@@ -8,23 +8,30 @@ import * as helpers from './lib/helpers';
 
 const STORAGE_KEY_LOGS = 'logs';
 const STORAGE_KEY_PARAMS = 'params';
-const STORAGE_KEY_PREFS = 'prefs';
+const STORAGE_KEY_VIZ_PREFS = 'viz-prefs';
+const STORAGE_KEY_TABLE_PREFS = 'table-prefs';
 
 const TAB_INDEX_RUN_TRIAL = 0;
 const TAB_INDEX_TRIALS = 1;
 const TAB_INDEX_VIZ = 2;
 
 interface VisualizationPreferences {
-  trialSearch: string;
-  trialGrouping: string;
+  vizGroupSearchRegex: string;
+  vizGroupSubst: string;
 }
-
-const DEFAULT_PREFS : VisualizationPreferences = {
-  trialSearch: '^(.*)$',
-  trialGrouping: '$1',
+const DEFAULT_VIZ_PREFS : VisualizationPreferences = {
+  vizGroupSearchRegex: '^(.*)$',
+  vizGroupSubst: '$1',
 };
 
-interface SelectedTrials {
+interface TablePreferences {
+  tableSearchRegex: string,
+}
+const DEFAULT_TABLE_PREFS : TablePreferences = {
+  tableSearchRegex: '^.*$',
+};
+
+interface SelectedTrialGroups {
   name: string;
   trials: trial.TrialData[]
 }
@@ -37,10 +44,18 @@ interface SelectedTrials {
 export class AppComponent {
   title = 'Fitts Experimenter';
   trialParamsString: string;
-  trialSearch: string = DEFAULT_PREFS.trialSearch ;
-  trialGrouping: string = DEFAULT_PREFS.trialGrouping;
+  // All data.
   allTrialsData: trial.TrialData[] = [];
-  selectedTrials: SelectedTrials[] = [];
+  // Used for table.
+  tableSearchRegex: string = DEFAULT_TABLE_PREFS.tableSearchRegex;
+  tableSelectedTrials: trial.TrialData[] = [];
+  // Used for Viz groups.
+  vizGroupSearchRegex: string = DEFAULT_VIZ_PREFS.vizGroupSearchRegex ;
+  vizGroupSubst: string = DEFAULT_VIZ_PREFS.vizGroupSubst;
+  selectedTrialGroups: SelectedTrialGroups[] = [];
+  showGraph: boolean;
+  showTapsPlot: boolean;
+
   @ViewChild('fileEl') fileEl:ElementRef;
   @ViewChild('downloadLinkEl') downloadLinkEl:ElementRef;
   @ViewChild('tabBar') tabsGroup: MdTabGroup;
@@ -52,26 +67,46 @@ export class AppComponent {
     this.restoreTrials();
   }
 
+  // Table Preferences
+  // TODO: Generalize a view's prefs into a save-class thing.
+  saveTablePrefs() {
+    localStorage.setItem(STORAGE_KEY_TABLE_PREFS, JSON.stringify({
+      tableSearchRegex: this.tableSearchRegex,
+    }));
+  }
+  restoreTablePrefs() {
+    let prefsString = localStorage.getItem(STORAGE_KEY_VIZ_PREFS);
+    if(!prefsString) {
+      this.resetTablePrefs();
+      return;
+    }
+    let prefs: TablePreferences = JSON.parse(prefsString);
+    this.tableSearchRegex = prefs.tableSearchRegex;
+  }
+  resetTablePrefs() {
+    this.vizGroupSearchRegex = DEFAULT_TABLE_PREFS.tableSearchRegex;
+  }
+
   // Visualization Preferences
   saveVisualizationPrefs() {
-    localStorage.setItem(STORAGE_KEY_PREFS, JSON.stringify({
-      trialSearch: this.trialSearch,
-      trialGrouping: this.trialGrouping,
+    localStorage.setItem(STORAGE_KEY_VIZ_PREFS, JSON.stringify({
+      vizGroupSearchRegex: this.vizGroupSearchRegex,
+      vizGroupSubst: this.vizGroupSubst,
     }));
   }
   restoreVisualizationPrefs() {
-    let prefsString = localStorage.getItem(STORAGE_KEY_PREFS);
+    let prefsString = localStorage.getItem(STORAGE_KEY_VIZ_PREFS);
     if(!prefsString) {
       this.resetVisualizationPrefs();
       return;
     }
     let prefs: VisualizationPreferences = JSON.parse(prefsString);
-    this.trialSearch = prefs.trialSearch;
-    this.trialGrouping = prefs.trialGrouping;
+    this.vizGroupSearchRegex = prefs.vizGroupSearchRegex;
+    this.vizGroupSubst = prefs.vizGroupSubst;
   }
   resetVisualizationPrefs() {
-    this.trialSearch = DEFAULT_PREFS.trialSearch;
-    this.trialGrouping = DEFAULT_PREFS.trialGrouping;
+    this.vizGroupSearchRegex = DEFAULT_VIZ_PREFS.vizGroupSearchRegex;
+    this.vizGroupSubst = DEFAULT_VIZ_PREFS.vizGroupSubst;
   }
 
   // Default Trial Params
@@ -109,7 +144,8 @@ export class AppComponent {
   }
 
   // When UI wants us to remove a trial.
-  removeOneTrial(index) {
+  deleteOneTrial(index) {
+    console.log(index);
     this.allTrialsData.splice(index, 1);
   }
 
@@ -204,14 +240,17 @@ export class AppComponent {
   }
 
   showVizualizations() {
-    let trialSearchRegExp = new RegExp(this.trialSearch);
+    let trialSearchRegExp = new RegExp(this.vizGroupSearchRegex);
 
     let trialGroups : { [name:string] : trial.TrialData[] } = {};
 
     for (let d of this.allTrialsData) {
       let tagStringToMatch : string = trial.trialString(d);
       if (trialSearchRegExp.test(tagStringToMatch)){
-        let key = tagStringToMatch.replace(trialSearchRegExp, this.trialGrouping);
+        let key = tagStringToMatch.replace(trialSearchRegExp, this.vizGroupSubst);
+        console.log(`tagStringToMatch: ${tagStringToMatch}`);
+        console.log(`this.trialGrouping: ${this.vizGroupSubst}`);
+        console.log(`key: ${key}`);
         if(!(key in trialGroups)) {
           trialGroups[key] = [];
         }
@@ -220,14 +259,32 @@ export class AppComponent {
     }
 
     //
-    this.selectedTrials = [];
+    this.selectedTrialGroups = [];
     for (let key of Object.keys(trialGroups)) {
-      this.selectedTrials.push({
+      this.selectedTrialGroups.push({
         name: key,
         trials: trialGroups[key],
       })
     }
-    console.log(this.selectedTrials);
+  }
+
+  showTable() {
+    this.tableSelectedTrials = [];
+    let trialSearchRegExp = new RegExp(this.tableSearchRegex);
+    for (let d of this.allTrialsData) {
+      if (trialSearchRegExp.test(trial.trialString(d))){
+        this.tableSelectedTrials.push(d);
+      }
+    }
+  }
+  dateStringifyTrialLog = trial.dateStringifyTrialLog;
+
+  distancesString(distances : {[s: string] : number }) : string {
+    let outputs: string[] = [];
+    for (let d of Object.keys(distances).sort()) {
+      outputs.push(`${d}`);
+    }
+    return outputs.join(',');
   }
 
   splitByDistance() {

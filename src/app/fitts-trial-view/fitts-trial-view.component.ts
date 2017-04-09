@@ -25,6 +25,7 @@ export class FittsTrialViewComponent implements OnInit {
   }
 
   delete() {
+    console.log(`clicked on: ${this.index}`);
     this.deleteEvent.emit(this.index);
   }
 }

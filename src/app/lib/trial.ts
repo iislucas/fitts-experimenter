@@ -97,7 +97,7 @@ export interface TrialData {
 }
 
 
-function distancesString(distances : {[s: string] : number }) : string {
+export function distancesString(distances : {[s: string] : number }) : string {
   let outputs: string[] = [];
   for (let d of Object.keys(distances).sort()) {
     outputs.push(`${d}:${distances[d]}`);
@@ -105,7 +105,7 @@ function distancesString(distances : {[s: string] : number }) : string {
   return outputs.join(',');
 }
 
-function dateStringifyTrialLog(log: Log) : string {
+export function dateStringifyTrialLog(log: Log) : string {
   let length = Math.round((log.end_timestamp - log.start_timestamp) / 1000);
   let date = new Date(log.start_timestamp);
   function makeTwoDigit(x) {
@@ -255,9 +255,10 @@ function std(xs:number[]) : number {
 
 
 export function eventStats(events: Event[], targetName?:string) : TargetStats {
-  let realEvents = events.slice(
-        5, // trialLog.params.skipFirstNTaps,
-        events.length);
+  let realEvents = events;
+  // events.slice(
+  //       5, // trialLog.params.skipFirstNTaps,
+  //       events.length);
 
   if (targetName) {
     realEvents = realEvents.filter(
@@ -315,17 +316,17 @@ export function eventStats(events: Event[], targetName?:string) : TargetStats {
     n: values.ts.length,
     ts_n: selected_ts.selected.length,
     ds_n: values.ds.length,
-    mt_mean: mean(selected_ts.selected),
+    mt_mean: Math.round(mean(selected_ts.selected)),
     mt_std: std(selected_ts.selected),
-    eff_width: values.width,
-    eff_xwidth: values.xWidth,
-    eff_ywidth: values.yWidth,
-    mean_d: mean(values.ds),
-    std_d: std(values.ds),
-    mean_dx: mean(values.dxs),
-    std_dx: std(values.dxs),
-    mean_dy: mean(values.dys),
-    std_dy: std(values.dys),
+    eff_width: Math.round(values.width),
+    eff_xwidth: Math.round(values.xWidth),
+    eff_ywidth: Math.round(values.yWidth),
+    mean_d: Math.round(mean(values.ds)),
+    std_d: Math.round(std(values.ds)),
+    mean_dx: Math.round(mean(values.dxs)),
+    std_dx: Math.round(std(values.dxs)),
+    mean_dy: Math.round(mean(values.dys)),
+    std_dy: Math.round(std(values.dys)),
   };
 
   return {

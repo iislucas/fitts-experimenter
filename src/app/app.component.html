@@ -41,7 +41,7 @@
           <div>
             <md-input-container class="codeInput">
               <textarea mdInput rows="26"
-                placeholder="Trial Settings" [(value)]="trialParamsString"></textarea>
+                placeholder="Trial Settings" [(ngModel)]="trialParamsString"></textarea>
             </md-input-container>
           </div>
           <div>
@@ -58,7 +58,7 @@
           <div *ngFor="let data of allTrialsData; let i=index">
             <md-card>
               <app-fitts-trial-view [data]="data" [index]="i"
-                (delete)="removeOneTrial($event)"></app-fitts-trial-view>
+                (deleteEvent)="deleteOneTrial($event)"></app-fitts-trial-view>
             </md-card>
           </div>
         </md-tab>
@@ -67,28 +67,68 @@
             <div>
               <md-input-container class="codeInput">
                   <textarea mdInput rows="1"
-                    placeholder="Selected trials (RegExp)" [(value)]="trialSearch"></textarea>
+                    placeholder="Selected trials (RegExp)" [(ngModel)]="vizGroupSearchRegex"></textarea>
               </md-input-container>
               <md-input-container class="codeInput">
                   <textarea mdInput rows="1"
-                    placeholder="Trial Grouping (Subst)" [(value)]="trialGrouping"></textarea>
+                    placeholder="Trial Grouping (Subst)" [(ngModel)]="vizGroupSubst"></textarea>
               </md-input-container>
-              <md-checkbox checked>Show tap scatter</md-checkbox>
-              <md-checkbox checked>Show time-distance chart</md-checkbox>
+              <md-checkbox checked [(ngModel)]="showGraph">Show trials-distance graphs</md-checkbox>
+              <md-checkbox checked [(ngModel)]="showTapsPlot">Show tap-scatter</md-checkbox>
             </div>
             <button md-raised-button (click)="resetVisualizationPrefs()">Reset</button>
             <button md-raised-button (click)="restoreVisualizationPrefs()">Load</button>
             <button md-raised-button (click)="saveVisualizationPrefs()">Save</button>
             <button md-raised-button (click)="showVizualizations()">Show</button>
           </md-card>
-          <md-card *ngFor="let group of selectedTrials; let gindex=index">
+          <md-card *ngFor="let group of selectedTrialGroups; let gindex=index">
               <div class="groupTitle">{{gindex}} : {{group.name}}</div>
               <div *ngFor="let trial of group.trials; let i=index">
                 <app-fitts-trial-view [data]="trial" [index]="i"
                   (delete)="removeOneTrial($event)"></app-fitts-trial-view>
               </div>
-              <app-fitts-visualization [trials]="group.trials"></app-fitts-visualization>
+              <app-fitts-visualization [trials]="group.trials"
+                [showGraph]="showGraph" [showTapsPlot]="showTapsPlot"></app-fitts-visualization>
           </md-card>
+        </md-tab>
+        <md-tab label="Stats Table">
+          <md-input-container class="codeInput">
+                  <textarea mdInput rows="1"
+                    placeholder="Selected trials (RegExp)" [(ngModel)]="tableSearchRegex"></textarea>
+          </md-input-container>
+          <button md-raised-button (click)="resetTablePrefs()">Reset</button>
+          <button md-raised-button (click)="restoreTablePrefs()">Load</button>
+          <button md-raised-button (click)="saveTablePrefs()">Save</button>
+          <button md-raised-button (click)="showTable()">Show</button>
+
+          <table class="statsTable" *ngIf="tableSelectedTrials.length > 0"><tr>
+            <th>i</th>
+            <th>id</th>
+            <th>description</th>
+            <th>tags</th>
+            <th>nevents</th>
+            <th>lookahead</th>
+            <th>distances</th>
+            <th>mt_mean</th>
+            <th>eff_width</th>
+            <th>mean_d</th>
+            <th>std_d</th>
+            </tr>
+          <tr *ngFor="let trial of tableSelectedTrials; let i=index">
+            <td>{{i}}</td>
+            <td>{{dateStringifyTrialLog(trial.log)}}</td>
+            <td>{{trial.log.description}}</td>
+            <td>{{trial.log.tags}}</td>
+            <td>{{trial.log.events.length}}</td>
+            <td>{{trial.lookahead}}</td>
+            <td>{{distancesString(trial.distances)}}</td>
+            <td>{{trial.stats.summary.mt_mean}}</td>
+            <td>{{trial.stats.summary.eff_width}}</td>
+            <td>{{trial.stats.summary.mean_d}}</td>
+            <td>{{trial.stats.summary.std_d}}</td>
+          </tr>
+          </table>
+
         </md-tab>
       </md-tab-group>
     </div>

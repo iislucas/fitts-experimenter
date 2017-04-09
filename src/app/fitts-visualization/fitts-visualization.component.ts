@@ -15,13 +15,18 @@ export class FittsVisualizationComponent implements OnInit {
   @Input() trials: trial.TrialData[] = [];
   @Input() showGraph: boolean = false;
   @Input() showTapsPlot: boolean = false;
+  @Input() showc1c2TapsPlot: boolean = false;
   @ViewChild('vizEl') vizEl: ElementRef;
 
   constructor() { }
 
   ngOnInit() {
-    this.addGraph();
-    this.addTapViz();
+    if(this.showGraph) {
+      this.addGraph();
+    }
+    if(this.showTapsPlot) {
+      this.addTapViz();
+    }
   }
 
   addGraph() {
@@ -89,24 +94,26 @@ export class FittsVisualizationComponent implements OnInit {
         effectiveWidthStroke: 'rgba(0, 0, 0, 0.5)',
       }, this.vizEl.nativeElement);
 
-    let targetsTapPoints : { [target:string]:{ x: number, y: number}[]; } = {}
-    for (let t of tapPoints) {
-      if(!(t.circleClickedOn in targetsTapPoints)) {
-        targetsTapPoints[t.circleClickedOn] = [];
+    if (this.showc1c2TapsPlot) {
+      let targetsTapPoints : { [target:string]:{ x: number, y: number}[]; } = {}
+      for (let t of tapPoints) {
+        if(!(t.circleClickedOn in targetsTapPoints)) {
+          targetsTapPoints[t.circleClickedOn] = [];
+        }
+        targetsTapPoints[t.circleClickedOn].push(t);
       }
-      targetsTapPoints[t.circleClickedOn].push(t);
-    }
 
-    for (let target of Object.keys(targetsTapPoints)) {
-      new taps_viz.TapsViz({
-        name: target,
-        tapPoints: targetsTapPoints[target], 
-        tapFill: 'rgba(255, 0, 0, 0.2)',
-        tapStroke: 'rgba(0, 0, 0, 0.2)',
-        effectiveWidth: stats.summary.eff_width,
-        effectiveWidthFill: 'rgba(0, 0, 0, 0.1)',
-        effectiveWidthStroke: 'rgba(0, 0, 0, 0.5)',
-      }, this.vizEl.nativeElement);
+      for (let target of Object.keys(targetsTapPoints)) {
+        new taps_viz.TapsViz({
+          name: target,
+          tapPoints: targetsTapPoints[target],
+          tapFill: 'rgba(255, 0, 0, 0.2)',
+          tapStroke: 'rgba(0, 0, 0, 0.2)',
+          effectiveWidth: stats.summary.eff_width,
+          effectiveWidthFill: 'rgba(0, 0, 0, 0.1)',
+          effectiveWidthStroke: 'rgba(0, 0, 0, 0.5)',
+        }, this.vizEl.nativeElement);
+      }
     }
   }
 
