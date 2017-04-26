@@ -97,6 +97,7 @@ export class TapsViz {
       .attr('r', this.dataset.effectiveWidth)
       .attr('cx', this.x(0))
       .attr('cy', this.x(0))
+      .attr('stroke-dasharray', '5,5')
       .style('fill', this.dataset.effectiveWidthFill)
       .style('stroke', this.dataset.effectiveWidthStroke)
       .style('stroke-width', '1');

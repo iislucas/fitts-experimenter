@@ -86,11 +86,11 @@ export class FittsVisualizationComponent implements OnInit {
 
     new taps_viz.TapsViz({
         name: 'all',
-        tapPoints: tapPoints, 
-        tapFill: 'rgba(255, 0, 0, 0.2)',
+        tapPoints: tapPoints,
+        tapFill: 'rgba(0, 0, 0, 0.2)',
         tapStroke: 'rgba(0, 0, 0, 0.2)',
         effectiveWidth: stats.summary.eff_width,
-        effectiveWidthFill: 'rgba(0, 0, 0, 0.1)',
+        effectiveWidthFill: 'none',
         effectiveWidthStroke: 'rgba(0, 0, 0, 0.5)',
       }, this.vizEl.nativeElement);
 
