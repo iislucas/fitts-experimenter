@@ -931,9 +931,9 @@ commander@2, commander@2.9.x, commander@^2.9.0:
   dependencies:
     graceful-readlink ">= 1.0.0"
 
-complex.js@2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/complex.js/-/complex.js-2.0.1.tgz#ea90c7a05aeceaf3a376d2c0f6a78421727d6879"
+complex.js@2.0.4:
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/complex.js/-/complex.js-2.0.4.tgz#d8e7cfb9652d1e853e723386421c1a0ca7a48373"
 
 component-emitter@^1.2.1:
   version "1.3.0"
@@ -1360,9 +1360,9 @@ decamelize@^1.0.0, decamelize@^1.1.1, decamelize@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-1.2.0.tgz#f6534d15148269b20352e7bee26f501f9a191290"
 
-decimal.js@7.1.1:
-  version "7.1.1"
-  resolved "https://registry.yarnpkg.com/decimal.js/-/decimal.js-7.1.1.tgz#1adcad7d70d7a91c426d756f1eb6566c3be6cbcf"
+decimal.js@7.2.3:
+  version "7.2.3"
+  resolved "https://registry.yarnpkg.com/decimal.js/-/decimal.js-7.2.3.tgz#6434c3b8a8c375780062fc633d0d2bbdb264cc78"
 
 decode-uri-component@^0.2.0:
   version "0.2.0"
@@ -1962,9 +1962,9 @@ forwarded@~0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/forwarded/-/forwarded-0.1.2.tgz#98c23dab1175657b8c0573e8ceccd91b0ff18c84"
 
-fraction.js@4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/fraction.js/-/fraction.js-4.0.0.tgz#73974e2f8b51ef709536d624cc90782e2bb61274"
+fraction.js@4.0.2:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/fraction.js/-/fraction.js-4.0.2.tgz#0eae896626f334b1bde763371347a83b5575d7f0"
 
 fragment-cache@^0.2.1:
   version "0.2.1"
@@ -2781,6 +2781,10 @@ isstream@~0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/isstream/-/isstream-0.1.2.tgz#47e63f7af55afa6f92e1500e690eb8b8529c099a"
 
+javascript-natural-sort@0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/javascript-natural-sort/-/javascript-natural-sort-0.7.1.tgz#f9e2303d4507f6d74355a73664d1440fb5a0ef59"
+
 jimp@^0.2.13, jimp@^0.2.21, jimp@^0.2.24:
   version "0.2.27"
   resolved "https://registry.yarnpkg.com/jimp/-/jimp-0.2.27.tgz#41ef5082d8b63201d54747e04fe8bcacbaf25474"
@@ -3020,16 +3024,17 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-mathjs@^3.8.1:
-  version "3.10.0"
-  resolved "https://registry.yarnpkg.com/mathjs/-/mathjs-3.10.0.tgz#cae0a27340483a00499253fb2c82f5818b9683fe"
+mathjs@^3.17.0:
+  version "3.17.0"
+  resolved "https://registry.yarnpkg.com/mathjs/-/mathjs-3.17.0.tgz#9569d278874546175c9d0497d7417eb88fb61503"
   dependencies:
-    complex.js "2.0.1"
-    decimal.js "7.1.1"
-    fraction.js "4.0.0"
+    complex.js "2.0.4"
+    decimal.js "7.2.3"
+    fraction.js "4.0.2"
+    javascript-natural-sort "0.7.1"
     seed-random "2.2.0"
-    tiny-emitter "1.0.2"
-    typed-function "0.10.5"
+    tiny-emitter "2.0.0"
+    typed-function "0.10.6"
 
 media-typer@0.3.0:
   version "0.3.0"
@@ -4780,9 +4785,9 @@ timers-browserify@^2.0.2:
   dependencies:
     setimmediate "^1.0.4"
 
-tiny-emitter@1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/tiny-emitter/-/tiny-emitter-1.0.2.tgz#8e49470d3f55f89e247210368a6bb9fb51aa1601"
+tiny-emitter@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/tiny-emitter/-/tiny-emitter-2.0.0.tgz#bad327adb1804b42a231afa741532bd884cd09ad"
 
 tinycolor2@^1.1.2:
   version "1.4.1"
@@ -4876,9 +4881,9 @@ type-is@~1.6.17, type-is@~1.6.18:
     media-typer "0.3.0"
     mime-types "~2.1.24"
 
-typed-function@0.10.5:
-  version "0.10.5"
-  resolved "https://registry.yarnpkg.com/typed-function/-/typed-function-0.10.5.tgz#2e0f18abd065219fab694a446a65c6d1981832c0"
+typed-function@0.10.6:
+  version "0.10.6"
+  resolved "https://registry.yarnpkg.com/typed-function/-/typed-function-0.10.6.tgz#314aa0ea72bd586de5920095559683e20b01688b"
 
 typedarray@~0.0.5:
   version "0.0.6"
